@@ -67,15 +67,24 @@ export default function RightOutputPane({
   };
 
   // High-Fidelity Client-side Export to Microsoft Word DOC Document
+  // High-Fidelity Client-side Export to Microsoft Word DOC Document
   const exportToDoc = () => {
     // Determine dimensions and font parameters based on compact mode
     const finalFontSize = compactPrint ? "11pt" : "12pt";
     const finalLineHeight = compactPrint ? "1.25" : "1.4";
-    
-    // Resolve memo prefix duplicate
-    const cleanMemoNo = memoNumber?.toLowerCase().startsWith("memo no") 
-      ? memoNumber 
-      : memoNumber ? `Memo No. ${memoNumber}` : "";
+
+    // Helper to strip technical placeholders, bracket text, and excessive underscores
+    const cleanValue = (val, fallback = "") => {
+      if (!val) return fallback;
+      let s = val.trim();
+      // Remove standard bracket placeholders like [CENTRAL OFFICE HEADER], [Memo No. ________], etc.
+      s = s.replace(/\[[^\]]*\]/g, "");
+      // Remove repeating underscores or dashes used as blank spaces (3 or more)
+      s = s.replace(/_{3,}/g, "");
+      s = s.replace(/-{3,}/g, "");
+      s = s.trim();
+      return s || fallback;
+    };
 
     // Convert newlines in text blocks to standard HTML br breaks
     const formatHtmlText = (text) => {
@@ -83,165 +92,234 @@ export default function RightOutputPane({
       return text.replace(/\n/g, "<br/>");
     };
 
-    // Construct high-fidelity MS Word document with normal paragraph flows (no rigid Tables!)
-    const html = `
-      <html xmlns:o='urn:schemas-microsoft-com:office:office' 
-            xmlns:w='urn:schemas-microsoft-com:office:word' 
-            xmlns='http://www.w3.org/TR/REC-html40'>
-      <head>
-        <title>Letter - E-Office</title>
-        <!--[if gte mso 9]>
-        <xml>
-          <w:WordDocument>
-            <w:View>Print</w:View>
-            <w:Zoom>100</w:Zoom>
-            <w:DoNotOptimizeForBrowser/>
-          </w:WordDocument>
-        </xml>
-        <![endif]-->
-        <style>
-          @page {
-            size: A4;
-            margin: ${margins?.top ?? 0.8}in ${margins?.right ?? 1.0}in ${margins?.bottom ?? 0.8}in ${margins?.left ?? 1.0}in;
-          }
-          body {
-            font-family: 'Times New Roman', Times, serif;
-            font-size: ${finalFontSize};
-            line-height: ${finalLineHeight};
-            color: #0f172a;
-          }
-          .letterhead-title {
-            text-align: center;
-            font-size: ${compactPrint ? "12.5pt" : "13.5pt"};
-            font-weight: bold;
-            line-height: 1.25;
-            margin-bottom: 15px;
-          }
-        </style>
-      </head>
-      <body>
-        <div style="font-family: 'Times New Roman', Times, serif;">
-          
-          <!-- 1. Letterhead Title (Centered text only, no broken logo images) -->
-          ${letterhead ? `<div class="letterhead-title">${formatHtmlText(letterhead)}</div>` : ""}
+    let html = "";
 
-          <!-- 2 & 3. Memo No & Date Line (Using floating spans for a normal, editable line without tables) -->
-          <div style="width: 100%; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px; margin-bottom: 15px; overflow: hidden; clear: both;">
-            <span style="float: left; font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; font-weight: bold;">
-              ${cleanMemoNo}
-            </span>
-            <span style="float: right; font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; font-weight: bold; text-align: right;">
-              Dated, ${placeAndDate || "___________"}
-            </span>
+    if (editorMode === "raw") {
+      const cleanContent = cleanValue(letterContent);
+      html = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+              xmlns:w='urn:schemas-microsoft-com:office:word' 
+              xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <title>Letter - E-Office</title>
+          <!--[if gte mso 9]>
+          <xml>
+            <w:WordDocument>
+              <w:View>Print</w:View>
+              <w:Zoom>100</w:Zoom>
+              <w:DoNotOptimizeForBrowser/>
+            </w:WordDocument>
+          </xml>
+          <![endif]-->
+          <style>
+            @page {
+              size: A4;
+              margin: ${margins?.top ?? 0.8}in ${margins?.right ?? 1.0}in ${margins?.bottom ?? 0.8}in ${margins?.left ?? 1.0}in;
+            }
+            body {
+              font-family: 'Times New Roman', Times, serif;
+              font-size: ${finalFontSize};
+              line-height: ${finalLineHeight};
+              color: #000000;
+            }
+            p {
+              margin: 0 0 8pt 0;
+              font-family: 'Times New Roman', Times, serif;
+              font-size: ${finalFontSize};
+              line-height: ${finalLineHeight};
+            }
+          </style>
+        </head>
+        <body>
+          <div style="font-family: 'Times New Roman', Times, serif;">
+            <p>${formatHtmlText(cleanContent)}</p>
           </div>
-          <div style="clear: both;"></div>
+        </body>
+        </html>
+      `;
+    } else {
+      const cleanLetterhead = cleanValue(letterhead);
+      const cleanMemoNoInput = cleanValue(memoNumber);
+      const cleanPlaceAndDate = cleanValue(placeAndDate);
+      const cleanFrom = cleanValue(fromBlock);
+      const cleanTo = cleanValue(toBlock);
+      const cleanSubject = cleanValue(subject);
+      const cleanReference = cleanValue(reference);
+      const cleanSalutation = cleanValue(salutation, "Sir,");
+      const cleanLetterBody = cleanValue(letterBody);
+      const cleanSignature = cleanValue(signatureBlock);
+      const cleanEnclosures = cleanValue(enclosures);
+      const cleanCopyTo = cleanValue(copyTo);
 
-          <!-- 4. From Block (Standard editable paragraphs with left indents) -->
-          ${fromBlock ? `
-          <div style="margin-bottom: 12px; font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; clear: both; overflow: hidden;">
-            <div style="float: left; font-weight: bold; width: 60px;">From :</div>
-            <div style="margin-left: 70px;">
-              ${formatHtmlText(fromBlock)}
-            </div>
-          </div>
-          <div style="clear: both;"></div>
-          ` : ""}
+      // Resolve memo prefix duplicate
+      const cleanMemoNo = cleanMemoNoInput?.toLowerCase().startsWith("memo no") 
+        ? cleanMemoNoInput 
+        : cleanMemoNoInput ? `Memo No. ${cleanMemoNoInput}` : "";
 
-          <!-- 5. To Block (Standard editable paragraphs with left indents) -->
-          ${toBlock ? `
-          <div style="margin-bottom: 15px; font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; clear: both; overflow: hidden;">
-            <div style="float: left; font-weight: bold; width: 60px;">To :</div>
-            <div style="margin-left: 70px;">
-              ${formatHtmlText(toBlock)}
-            </div>
-          </div>
-          <div style="clear: both;"></div>
-          ` : ""}
-
-          <!-- 6 & 7. Subject & Reference Box (Using styled div blocks instead of rigid tables) -->
-          <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 10px; margin-top: 10px; margin-bottom: 15px; font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; border-radius: 6px;">
-            <div style="clear: both; overflow: hidden; margin-bottom: 6px;">
-              <span style="float: left; font-weight: bold; width: 45px;">Sub:</span>
-              <span style="margin-left: 55px; font-weight: bold; text-decoration: underline; display: block;">
-                ${subject}
-              </span>
-            </div>
-            <div style="clear: both;"></div>
-            ${reference ? `
-            <div style="clear: both; overflow: hidden; border-top: 1px solid #cbd5e1; padding-top: 8px; margin-top: 8px;">
-              <span style="float: left; font-style: italic; width: 45px;">Ref:</span>
-              <span style="margin-left: 55px; font-style: italic; display: block;">
-                ${formatHtmlText(reference)}
-              </span>
-            </div>
-            <div style="clear: both;"></div>
-            ` : ""}
-          </div>
-
-          <!-- 8. Salutation -->
-          <div style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; font-weight: bold; margin-bottom: 12px; clear: both;">
-            ${salutation || "Sir,"}
-          </div>
-
-          <!-- 9. Letter Body paragraphs -->
-          <div style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; line-height: ${finalLineHeight}; text-align: justify; margin-bottom: 20px; clear: both;">
-            ${formatHtmlText(letterBody)}
-          </div>
-
-          <!-- 10. Yours faithfully & Signature Block (Floating div block, fully editable) -->
-          <div style="float: right; width: 260px; text-align: right; margin-top: 15px; margin-bottom: 20px; font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize};">
-            <div style="font-weight: bold; margin-bottom: 45px; text-align: right; padding-right: 15px;">Yours faithfully,</div>
-            <div style="font-weight: bold; line-height: 1.25; text-align: right;">
-              ${formatHtmlText(signatureBlock)}
-            </div>
-          </div>
-          <div style="clear: both;"></div>
-
-          <!-- 11. Enclosures (Encl:) -->
-          ${enclosures ? `
-          <div style="border-top: 1px solid #cbd5e1; padding-top: 10px; margin-top: 15px; font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; clear: both;">
-            <span style="font-weight: bold;">Enclosures (Encl:):</span>
-            <div style="margin-left: 20px; padding-top: 6px;">
-              ${formatHtmlText(enclosures)}
-            </div>
-          </div>
-          ` : ""}
-
-          <!-- 12. Copy Forwarding Distribution -->
-          ${copyTo ? `
-          <div style="margin-top: 25px; padding-top: 10px; clear: both;">
-            <!-- Memo line with border -->
-            <div style="width: 100%; border-top: 2px dashed #cbd5e1; padding-top: 8px; margin-bottom: 15px; overflow: hidden; clear: both;">
-              <span style="float: left; font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; font-weight: bold;">
-                ${cleanMemoNo}
-              </span>
-              <span style="float: right; font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; font-weight: bold; text-align: right;">
-                Dated, ${placeAndDate || "___________"}
-              </span>
-            </div>
-            <div style="clear: both;"></div>
-
-            <div style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; font-weight: bold; margin-bottom: 10px;">
-              Copy forwarded for information and necessary action to:
-            </div>
+      html = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+              xmlns:w='urn:schemas-microsoft-com:office:word' 
+              xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <title>Letter - E-Office</title>
+          <!--[if gte mso 9]>
+          <xml>
+            <w:WordDocument>
+              <w:View>Print</w:View>
+              <w:Zoom>100</w:Zoom>
+              <w:DoNotOptimizeForBrowser/>
+            </w:WordDocument>
+          </xml>
+          <![endif]-->
+          <style>
+            @page {
+              size: A4;
+              margin: ${margins?.top ?? 0.8}in ${margins?.right ?? 1.0}in ${margins?.bottom ?? 0.8}in ${margins?.left ?? 1.0}in;
+            }
+            body {
+              font-family: 'Times New Roman', Times, serif;
+              font-size: ${finalFontSize};
+              line-height: ${finalLineHeight};
+              color: #000000;
+            }
+            p {
+              margin: 0 0 8pt 0;
+              font-family: 'Times New Roman', Times, serif;
+              font-size: ${finalFontSize};
+              line-height: ${finalLineHeight};
+            }
+          </style>
+        </head>
+        <body>
+          <div style="font-family: 'Times New Roman', Times, serif;">
             
-            <div style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; margin-left: 20px; line-height: ${finalLineHeight}; margin-bottom: 20px;">
-              ${formatHtmlText(copyTo)}
-            </div>
+            <!-- 1. Letterhead Title (Centered bold text) -->
+            ${cleanLetterhead ? `
+            <p align="center" style="text-align: center; font-size: ${compactPrint ? "13pt" : "14pt"}; font-weight: bold; margin-bottom: 15pt;">
+              <b>${formatHtmlText(cleanLetterhead)}</b>
+            </p>
+            ` : ""}
 
-            <!-- Aligned Copy Signature -->
-            <div style="float: right; width: 260px; text-align: right; margin-top: 15px; font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; font-weight: bold; line-height: 1.25;">
-              <div style="height: 45px;"></div>
-              ${formatHtmlText(signatureBlock)}
+            <!-- 2 & 3. Memo No & Date Line (Using native borderless table) -->
+            <table border="0" width="100%" cellspacing="0" cellpadding="0" style="width: 100%; border-bottom: 1px solid #000000; padding-bottom: 6px; margin-bottom: 12pt;">
+              <tr>
+                <td align="left" valign="bottom" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; font-weight: bold;">
+                  <b>${cleanMemoNo}</b>
+                </td>
+                <td align="right" valign="bottom" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; font-weight: bold; text-align: right;">
+                  <b>Dated, ${cleanPlaceAndDate}</b>
+                </td>
+              </tr>
+            </table>
+
+            <!-- 4. From Block (Clean borderless aligned table) -->
+            ${cleanFrom ? `
+            <table border="0" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 10pt; width: 100%;">
+              <tr valign="top">
+                <td width="8%" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; font-weight: bold;"><b>From:</b></td>
+                <td width="92%" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize};">
+                  ${formatHtmlText(cleanFrom)}
+                </td>
+              </tr>
+            </table>
+            ` : ""}
+
+            <!-- 5. To Block (Clean borderless aligned table) -->
+            ${cleanTo ? `
+            <table border="0" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 12pt; width: 100%;">
+              <tr valign="top">
+                <td width="8%" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; font-weight: bold;"><b>To:</b></td>
+                <td width="92%" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize};">
+                  ${formatHtmlText(cleanTo)}
+                </td>
+              </tr>
+            </table>
+            ` : ""}
+
+            <!-- 6 & 7. Subject & Reference Area -->
+            <p style="margin-top: 12pt; margin-bottom: 6pt;">
+              <b>Sub: <u>${cleanSubject}</u></b>
+            </p>
+            ${cleanReference ? `
+            <p style="margin-top: 6pt; margin-bottom: 12pt;">
+              <i>Ref: ${formatHtmlText(cleanReference)}</i>
+            </p>
+            ` : ""}
+
+            <!-- 8. Salutation -->
+            <p style="font-weight: bold; margin-bottom: 10pt; margin-top: 10pt;">
+              <b>${cleanSalutation}</b>
+            </p>
+
+            <!-- 9. Letter Body -->
+            <p style="text-align: justify; margin-bottom: 18pt;">
+              ${formatHtmlText(cleanLetterBody)}
+            </p>
+
+            <!-- 10. Yours faithfully & Signature Block (Standard right-aligned cell block) -->
+            <table border="0" width="100%" cellspacing="0" cellpadding="0" style="margin-top: 15pt; margin-bottom: 15pt; width: 100%;">
+              <tr>
+                <td width="55%"></td>
+                <td width="45%" align="right" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; text-align: right;">
+                  <b>Yours faithfully,</b>
+                  <br/><br/><br/><br/>
+                  <b>${formatHtmlText(cleanSignature)}</b>
+                </td>
+              </tr>
+            </table>
+
+            <!-- 11. Enclosures -->
+            ${cleanEnclosures ? `
+            <p style="border-top: 1px solid #cbd5e1; padding-top: 8pt; margin-top: 15pt; font-weight: bold;">
+              <b>Enclosures (Encl:):</b>
+            </p>
+            <p style="margin-left: 20pt; margin-bottom: 15pt;">
+              ${formatHtmlText(cleanEnclosures)}
+            </p>
+            ` : ""}
+
+            <!-- 12. Copy Forwarding Distribution -->
+            ${cleanCopyTo ? `
+            <div style="margin-top: 25pt;">
+              <!-- Border divider line -->
+              <p style="border-top: 1px dashed #000000; margin-top: 12pt; margin-bottom: 12pt; font-size: 1pt;">&nbsp;</p>
+              
+              <table border="0" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 10pt; width: 100%;">
+                <tr>
+                  <td align="left" valign="bottom" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; font-weight: bold;">
+                    <b>${cleanMemoNo}</b>
+                  </td>
+                  <td align="right" valign="bottom" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; font-weight: bold; text-align: right;">
+                    <b>Dated, ${cleanPlaceAndDate}</b>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin-top: 8pt; margin-bottom: 8pt; font-weight: bold;">
+                <b>Copy forwarded for information and necessary action to:</b>
+              </p>
+              
+              <p style="margin-left: 20pt; margin-bottom: 15pt;">
+                ${formatHtmlText(cleanCopyTo)}
+              </p>
+
+              <table border="0" width="100%" cellspacing="0" cellpadding="0" style="margin-top: 15pt; width: 100%;">
+                <tr>
+                  <td width="55%"></td>
+                  <td width="45%" align="right" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; text-align: right;">
+                    <br/><br/><br/>
+                    <b>${formatHtmlText(cleanSignature)}</b>
+                  </td>
+                </tr>
+              </table>
             </div>
-            <div style="clear: both;"></div>
+            ` : ""}
+
           </div>
-          ` : ""}
-
-        </div>
-      </body>
-      </html>
-    `;
+        </body>
+        </html>
+      `;
+    }
 
     const blob = new Blob(['\ufeff' + html], {
       type: 'application/msword'
@@ -256,6 +334,7 @@ export default function RightOutputPane({
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
+
 
   return (
     <div className="flex-1 flex flex-col h-full bg-gradient-to-br from-indigo-50/20 via-slate-50/10 to-violet-50/20">

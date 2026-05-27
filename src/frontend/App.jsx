@@ -47,16 +47,37 @@ export default function App() {
     return saved ? JSON.parse(saved) : { top: 0.8, bottom: 0.8, left: 1.0, right: 1.0 };
   });
 
+  const syncPreferencesToSupabase = async (updatedPrefs = {}) => {
+    try {
+      const payload = {
+        letterTypes: updatedPrefs.letterTypes ?? letterTypes,
+        tones: updatedPrefs.tones ?? tones,
+        copyPresets: updatedPrefs.copyPresets ?? copyPresets,
+        toAddresses: updatedPrefs.toAddresses ?? toAddresses,
+        margins: updatedPrefs.margins ?? margins,
+      };
+      await fetch("/api/e-office/preferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {
+      console.error("Failed to sync preferences to Supabase:", e);
+    }
+  };
+
   const updateMarginPreset = (top, bottom, left, right) => {
     const updated = { top, bottom, left, right };
     setMargins(updated);
     localStorage.setItem("e_office_page_margins", JSON.stringify(updated));
+    syncPreferencesToSupabase({ margins: updated });
   };
 
   const updateMarginField = (field, val) => {
     const updated = { ...margins, [field]: val };
     setMargins(updated);
     localStorage.setItem("e_office_page_margins", JSON.stringify(updated));
+    syncPreferencesToSupabase({ margins: updated });
   };
 
   // To Addresses Configuration State
@@ -194,45 +215,70 @@ export default function App() {
 
   // A. Load saved configurations on mount
   useEffect(() => {
+    // 1. First load from LocalStorage cache for fast load time
     try {
-      // 1. Saved Drafts
       const storedDrafts = localStorage.getItem("e_office_assistant_drafts");
       if (storedDrafts) setSavedDrafts(JSON.parse(storedDrafts));
 
-      // 2. Letter Types
       const storedTypes = localStorage.getItem("e_office_letter_types");
-      if (storedTypes) {
-        setLetterTypes(JSON.parse(storedTypes));
-      } else {
-        localStorage.setItem("e_office_letter_types", JSON.stringify(letterTypes));
-      }
+      if (storedTypes) setLetterTypes(JSON.parse(storedTypes));
 
-      // 3. Tones
       const storedTones = localStorage.getItem("e_office_letter_tones");
-      if (storedTones) {
-        setTones(JSON.parse(storedTones));
-      } else {
-        localStorage.setItem("e_office_letter_tones", JSON.stringify(tones));
-      }
+      if (storedTones) setTones(JSON.parse(storedTones));
 
-      // 4. Copy Presets
       const storedCopyPresets = localStorage.getItem("e_office_copy_presets");
-      if (storedCopyPresets) {
-        setCopyPresets(JSON.parse(storedCopyPresets));
-      } else {
-        localStorage.setItem("e_office_copy_presets", JSON.stringify(copyPresets));
-      }
+      if (storedCopyPresets) setCopyPresets(JSON.parse(storedCopyPresets));
 
-      // 5. To Addresses Presets
       const storedToAddresses = localStorage.getItem("e_office_to_addresses");
-      if (storedToAddresses) {
-        setToAddresses(JSON.parse(storedToAddresses));
-      } else {
-        localStorage.setItem("e_office_to_addresses", JSON.stringify(toAddresses));
-      }
+      if (storedToAddresses) setToAddresses(JSON.parse(storedToAddresses));
+
+      const storedMargins = localStorage.getItem("e_office_page_margins");
+      if (storedMargins) setMargins(JSON.parse(storedMargins));
     } catch (e) {
-      console.error("Failed to load local settings storage:", e);
+      console.error("Failed to load local settings cache:", e);
     }
+
+    // 2. Fetch fresh data from Supabase and sync
+    const loadFromSupabase = async () => {
+      try {
+        const prefRes = await fetch("/api/e-office/preferences");
+        const prefData = await prefRes.json();
+        if (prefData.success && prefData.preferences) {
+          const prefs = prefData.preferences;
+          if (prefs.letter_types) {
+            setLetterTypes(prefs.letter_types);
+            localStorage.setItem("e_office_letter_types", JSON.stringify(prefs.letter_types));
+          }
+          if (prefs.tones) {
+            setTones(prefs.tones);
+            localStorage.setItem("e_office_letter_tones", JSON.stringify(prefs.tones));
+          }
+          if (prefs.copy_presets) {
+            setCopyPresets(prefs.copy_presets);
+            localStorage.setItem("e_office_copy_presets", JSON.stringify(prefs.copy_presets));
+          }
+          if (prefs.to_addresses) {
+            setToAddresses(prefs.to_addresses);
+            localStorage.setItem("e_office_to_addresses", JSON.stringify(prefs.to_addresses));
+          }
+          if (prefs.margins) {
+            setMargins(prefs.margins);
+            localStorage.setItem("e_office_page_margins", JSON.stringify(prefs.margins));
+          }
+        }
+
+        const histRes = await fetch("/api/e-office/history");
+        const histData = await histRes.json();
+        if (histData.success && histData.drafts) {
+          setSavedDrafts(histData.drafts);
+          localStorage.setItem("e_office_assistant_drafts", JSON.stringify(histData.drafts));
+        }
+      } catch (err) {
+        console.error("Failed to sync with Supabase on mount:", err);
+      }
+    };
+
+    loadFromSupabase();
   }, []);
 
   const saveDraftsToLocal = (newDrafts) => {
@@ -247,6 +293,7 @@ export default function App() {
     setLetterTypes(updated);
     localStorage.setItem("e_office_letter_types", JSON.stringify(updated));
     setNewTypeInput("");
+    syncPreferencesToSupabase({ letterTypes: updated });
   };
 
   const deleteLetterType = (idx) => {
@@ -256,6 +303,7 @@ export default function App() {
     if (letterType === letterTypes[idx]) {
       setLetterType(updated[0] || "");
     }
+    syncPreferencesToSupabase({ letterTypes: updated });
   };
 
   const addTone = () => {
@@ -264,6 +312,7 @@ export default function App() {
     setTones(updated);
     localStorage.setItem("e_office_letter_tones", JSON.stringify(updated));
     setNewToneInput("");
+    syncPreferencesToSupabase({ tones: updated });
   };
 
   const deleteTone = (idx) => {
@@ -273,6 +322,7 @@ export default function App() {
     if (tone === tones[idx]) {
       setTone(updated[0] || "");
     }
+    syncPreferencesToSupabase({ tones: updated });
   };
 
   const addCopyPreset = () => {
@@ -281,12 +331,14 @@ export default function App() {
     setCopyPresets(updated);
     localStorage.setItem("e_office_copy_presets", JSON.stringify(updated));
     setNewCopyPresetInput("");
+    syncPreferencesToSupabase({ copyPresets: updated });
   };
 
   const deleteCopyPreset = (idx) => {
     const updated = copyPresets.filter((_, i) => i !== idx);
     setCopyPresets(updated);
     localStorage.setItem("e_office_copy_presets", JSON.stringify(updated));
+    syncPreferencesToSupabase({ copyPresets: updated });
   };
 
   const addToAddress = () => {
@@ -295,12 +347,14 @@ export default function App() {
     setToAddresses(updated);
     localStorage.setItem("e_office_to_addresses", JSON.stringify(updated));
     setNewToInput("");
+    syncPreferencesToSupabase({ toAddresses: updated });
   };
 
   const deleteToAddress = (idx) => {
     const updated = toAddresses.filter((_, i) => i !== idx);
     setToAddresses(updated);
     localStorage.setItem("e_office_to_addresses", JSON.stringify(updated));
+    syncPreferencesToSupabase({ toAddresses: updated });
   };
 
   const saveOptionEdit = (idx, kind) => {
@@ -310,21 +364,25 @@ export default function App() {
       updated[idx] = editingValue.trim();
       setLetterTypes(updated);
       localStorage.setItem("e_office_letter_types", JSON.stringify(updated));
+      syncPreferencesToSupabase({ letterTypes: updated });
     } else if (kind === "tones") {
       const updated = [...tones];
       updated[idx] = editingValue.trim();
       setTones(updated);
       localStorage.setItem("e_office_letter_tones", JSON.stringify(updated));
+      syncPreferencesToSupabase({ tones: updated });
     } else if (kind === "copy") {
       const updated = [...copyPresets];
       updated[idx] = editingValue.trim();
       setCopyPresets(updated);
       localStorage.setItem("e_office_copy_presets", JSON.stringify(updated));
+      syncPreferencesToSupabase({ copyPresets: updated });
     } else if (kind === "to") {
       const updated = [...toAddresses];
       updated[idx] = editingValue.trim();
       setToAddresses(updated);
       localStorage.setItem("e_office_to_addresses", JSON.stringify(updated));
+      syncPreferencesToSupabase({ toAddresses: updated });
     }
     setEditingIndex(-1);
     setEditingValue("");
@@ -433,7 +491,7 @@ export default function App() {
     window.print();
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
     const newDraft = {
       id: Date.now().toString(),
       subject: mode === "draft" ? subject : "Reply: " + (uploadedFile?.name || "Uploaded Letter"),
@@ -446,7 +504,23 @@ export default function App() {
 
     const updated = [newDraft, ...savedDrafts];
     saveDraftsToLocal(updated);
-    alert("Draft archived into Local Storage History.");
+
+    try {
+      const res = await fetch("/api/e-office/history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newDraft)
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Draft successfully archived to Supabase database!");
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (e) {
+      console.error("Failed to sync draft to Supabase:", e);
+      alert("Draft archived locally, but Supabase sync failed. Verify network.");
+    }
   };
 
   const handleLoadDraft = (draft) => {
@@ -460,10 +534,24 @@ export default function App() {
     setHistoryOpen(false);
   };
 
-  const handleDeleteDraft = (id) => {
+  const handleDeleteDraft = async (id) => {
     if (confirm("Are you sure you want to delete this draft from history?")) {
       const updated = savedDrafts.filter((d) => d.id !== id);
       saveDraftsToLocal(updated);
+
+      try {
+        const res = await fetch(`/api/e-office/history/${id}`, {
+          method: "DELETE"
+        });
+        const data = await res.json();
+        if (data.success) {
+          console.log("Draft deleted from Supabase.");
+        } else {
+          console.warn("Failed to delete from Supabase:", data.error);
+        }
+      } catch (e) {
+        console.error("Failed to delete draft from Supabase:", e);
+      }
     }
   };
 

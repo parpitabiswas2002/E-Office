@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { createClient } from "@supabase/supabase-js";
 import { generateDraft, generateReply, generateBodyParagraphs } from "./geminiService.js";
 
 const app = new Hono();
@@ -127,6 +128,146 @@ app.post("/api/letters/reply", async (c) => {
       success: false,
       error: error.message
     }, 500);
+  }
+});
+
+// --- Supabase E-Office API Routes ---
+
+function getSupabaseClient(c) {
+  const supabaseUrl = c.env?.SUPABASE_URL || process.env?.SUPABASE_URL;
+  const supabaseKey = c.env?.SUPABASE_ANON_KEY || process.env?.SUPABASE_ANON_KEY;
+  return createClient(supabaseUrl, supabaseKey);
+}
+
+// Get Preferences
+app.get("/api/e-office/preferences", async (c) => {
+  try {
+    const supabase = getSupabaseClient(c);
+    const { data, error } = await supabase
+      .from("e_office_preferences")
+      .select("*")
+      .eq("id", "default")
+      .single();
+
+    if (error) {
+      return c.json({ success: false, error: error.message }, 500);
+    }
+
+    return c.json({ success: true, preferences: data });
+  } catch (error) {
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Update Preferences
+app.post("/api/e-office/preferences", async (c) => {
+  try {
+    const body = await c.req.json();
+    const supabase = getSupabaseClient(c);
+
+    // Upsert preferences for the 'default' profile
+    const { data, error } = await supabase
+      .from("e_office_preferences")
+      .upsert({
+        id: "default",
+        letter_types: body.letterTypes,
+        tones: body.tones,
+        copy_presets: body.copyPresets,
+        to_addresses: body.toAddresses,
+        margins: body.margins,
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return c.json({ success: false, error: error.message }, 500);
+    }
+
+    return c.json({ success: true, preferences: data });
+  } catch (error) {
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Get History / Previous Letters
+app.get("/api/e-office/history", async (c) => {
+  try {
+    const supabase = getSupabaseClient(c);
+    const { data, error } = await supabase
+      .from("e_office_history")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      return c.json({ success: false, error: error.message }, 500);
+    }
+
+    // Map database fields to front-end keys
+    const drafts = data.map(item => ({
+      id: item.id,
+      subject: item.subject,
+      documentType: item.document_type,
+      tone: item.tone,
+      content: item.content,
+      mode: item.mode,
+      date: item.created_at
+    }));
+
+    return c.json({ success: true, drafts });
+  } catch (error) {
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Save/Upsert History Item (Previous Letter)
+app.post("/api/e-office/history", async (c) => {
+  try {
+    const body = await c.req.json();
+    const supabase = getSupabaseClient(c);
+
+    const { data, error } = await supabase
+      .from("e_office_history")
+      .upsert({
+        id: body.id,
+        subject: body.subject,
+        document_type: body.documentType,
+        tone: body.tone,
+        content: body.content,
+        mode: body.mode,
+        created_at: body.date || new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return c.json({ success: false, error: error.message }, 500);
+    }
+
+    return c.json({ success: true, draft: data });
+  } catch (error) {
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Delete History Item
+app.delete("/api/e-office/history/:id", async (c) => {
+  try {
+    const id = c.req.param("id");
+    const supabase = getSupabaseClient(c);
+
+    const { error } = await supabase
+      .from("e_office_history")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      return c.json({ success: false, error: error.message }, 500);
+    }
+
+    return c.json({ success: true });
+  } catch (error) {
+    return c.json({ success: false, error: error.message }, 500);
   }
 });
 
