@@ -56,6 +56,10 @@ export default function App() {
         toAddresses: updatedPrefs.toAddresses ?? toAddresses,
         margins: updatedPrefs.margins ?? margins,
       };
+      // Only include headerLogo when explicitly passed (avoids sending large base64 on every pref save)
+      if (updatedPrefs.headerLogo !== undefined) {
+        payload.headerLogo = updatedPrefs.headerLogo;
+      }
       await fetch("/api/e-office/preferences", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -132,7 +136,22 @@ export default function App() {
   const [rawDate, setRawDate] = useState("2026-05-25");
 
   // Custom Letterhead Emblem (Base64 Data URL)
-  const [headerLogo, setHeaderLogo] = useState(null);
+  const [headerLogo, setHeaderLogoState] = useState(() => {
+    const cached = localStorage.getItem("e_office_header_logo");
+    return cached || null;
+  });
+
+  // Wrapper that persists logo to both localStorage and Supabase
+  const setHeaderLogo = (logo) => {
+    setHeaderLogoState(logo);
+    if (logo) {
+      localStorage.setItem("e_office_header_logo", logo);
+    } else {
+      localStorage.removeItem("e_office_header_logo");
+    }
+    // Persist to Supabase (null means remove)
+    syncPreferencesToSupabase({ headerLogo: logo });
+  };
 
   // Compiled raw text canvas editor state
   const [letterContent, setLetterContent] = useState("");
@@ -265,6 +284,11 @@ export default function App() {
           if (prefs.margins) {
             setMargins(prefs.margins);
             localStorage.setItem("e_office_page_margins", JSON.stringify(prefs.margins));
+          }
+          // Load persisted header logo from Supabase
+          if (prefs.header_logo) {
+            setHeaderLogoState(prefs.header_logo);
+            localStorage.setItem("e_office_header_logo", prefs.header_logo);
           }
         }
 

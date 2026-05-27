@@ -166,17 +166,24 @@ app.post("/api/e-office/preferences", async (c) => {
     const supabase = getSupabaseClient(c);
 
     // Upsert preferences for the 'default' profile
+    const upsertPayload = {
+      id: "default",
+      letter_types: body.letterTypes,
+      tones: body.tones,
+      copy_presets: body.copyPresets,
+      to_addresses: body.toAddresses,
+      margins: body.margins,
+      updated_at: new Date().toISOString()
+    };
+
+    // Only include header_logo if explicitly provided in the request
+    if (body.headerLogo !== undefined) {
+      upsertPayload.header_logo = body.headerLogo;
+    }
+
     const { data, error } = await supabase
       .from("e_office_preferences")
-      .upsert({
-        id: "default",
-        letter_types: body.letterTypes,
-        tones: body.tones,
-        copy_presets: body.copyPresets,
-        to_addresses: body.toAddresses,
-        margins: body.margins,
-        updated_at: new Date().toISOString()
-      })
+      .upsert(upsertPayload)
       .select()
       .single();
 
