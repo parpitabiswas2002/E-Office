@@ -29,6 +29,8 @@ export default function RightOutputPane({
   setLetterBody,
   signatureBlock,
   setSignatureBlock,
+  valediction,
+  setValediction,
   enclosures,
   setEnclosures,
   copyTo,
@@ -51,7 +53,8 @@ export default function RightOutputPane({
 
   // Compiles all structured fields into standard plain text layout
   const compileRawLetter = () => {
-    return `${letterhead ? letterhead + "\n\n" : ""}${memoNumber || "Memo No. __________"}                                   Date: ${placeAndDate || "__________"}\n\nFrom : ${fromBlock || ""}\n\nTo : ${toBlock || ""}\n\nSub: ${subject || ""}\n${reference ? "Ref: " + reference + "\n" : ""}\n${salutation || "Sir,"}\n\n${letterBody || ""}\n\n                                                       Yours faithfully,\n                                                       ${signatureBlock || ""}\n\n${enclosures ? "Encl:\n" + enclosures + "\n\n" : ""}${copyTo ? "------------------------------------------------------------\n" + (memoNumber || "Memo No. __________") + "                                   Date: " + (placeAndDate || "__________") + "\n\nCopy forwarded for information to:\n" + copyTo + "\n\n                                                       " + (signatureBlock || "") : ""}`;
+    const valedictionLine = valediction ? `                                                       ${valediction}\n` : "";
+    return `${letterhead ? letterhead + "\n\n" : ""}${memoNumber || "Memo No. __________"}                                   Date: ${placeAndDate || "__________"}\n\nFrom : ${fromBlock || ""}\n\nTo : ${toBlock || ""}\n\nSub: ${subject || ""}\n${reference ? "Ref: " + reference + "\n" : ""}\n${salutation || "Sir,"}\n\n${letterBody || ""}\n\n${valedictionLine}                                                       ${signatureBlock || ""}\n\n${enclosures ? "Encl:\n" + enclosures + "\n\n" : ""}${copyTo ? "------------------------------------------------------------\n" + (memoNumber || "Memo No. __________") + "                                   Date: " + (placeAndDate || "__________") + "\n\nCopy forwarded for information to:\n" + copyTo + "\n\n                                                       " + (signatureBlock || "") : ""}`;
   };
 
   const handleToggleRaw = () => {
@@ -148,6 +151,7 @@ export default function RightOutputPane({
       const cleanSalutation = cleanValue(salutation, "Sir,");
       const cleanLetterBody = cleanValue(letterBody);
       const cleanSignature = cleanValue(signatureBlock);
+      const cleanValediction = cleanValue(valediction);
       const cleanEnclosures = cleanValue(enclosures);
       const cleanCopyTo = cleanValue(copyTo);
 
@@ -193,7 +197,12 @@ export default function RightOutputPane({
         <body>
           <div style="font-family: 'Times New Roman', Times, serif;">
             
-            <!-- 1. Letterhead Title (Centered bold text) -->
+            <!-- 1. Letterhead Emblem + Title (Centered) -->
+            ${headerLogo ? `
+            <p align="center" style="text-align: center; margin-bottom: 4pt;">
+              <img src="${headerLogo}" alt="Emblem" style="height: 60px; width: auto;" />
+            </p>
+            ` : ""}
             ${cleanLetterhead ? `
             <p align="center" style="text-align: center; font-size: ${compactPrint ? "13pt" : "14pt"}; font-weight: bold; margin-bottom: 15pt;">
               <b>${formatHtmlText(cleanLetterhead)}</b>
@@ -252,17 +261,16 @@ export default function RightOutputPane({
             </p>
 
             <!-- 9. Letter Body -->
-            <p style="text-align: justify; margin-bottom: 18pt;">
+            <p style="margin-bottom: 18pt;">
               ${formatHtmlText(cleanLetterBody)}
             </p>
 
-            <!-- 10. Yours faithfully & Signature Block (Standard right-aligned cell block) -->
+            <!-- 10. Valediction & Signature Block (Standard right-aligned cell block) -->
             <table border="0" width="100%" cellspacing="0" cellpadding="0" style="margin-top: 15pt; margin-bottom: 15pt; width: 100%;">
               <tr>
                 <td width="55%"></td>
                 <td width="45%" align="right" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; text-align: right;">
-                  <b>Yours faithfully,</b>
-                  <br/><br/><br/><br/>
+                  ${cleanValediction ? `<b>${formatHtmlText(cleanValediction)}</b><br/><br/><br/><br/>` : `<br/><br/><br/><br/>`}
                   <b>${formatHtmlText(cleanSignature)}</b>
                 </td>
               </tr>
@@ -629,10 +637,36 @@ export default function RightOutputPane({
                   />
                 </div>
 
-                {/* 10. Yours faithfully & Signature Block (Bottom Right) */}
+                {/* 10. Valediction & Signature Block (Bottom Right) */}
                 <div className="flex flex-col items-end pt-2 print:pt-1">
                   <div className="text-right w-80 flex flex-col items-end space-y-1 select-text">
-                    <span className="font-bold text-slate-950 pr-4">Yours faithfully,</span>
+                    {valediction !== null && (
+                      <div className="flex items-center gap-1.5 group">
+                        <input
+                          type="text"
+                          value={valediction}
+                          onChange={(e) => setValediction(e.target.value)}
+                          className="border-0 p-0 focus:ring-0 focus:outline-none font-bold bg-transparent text-right text-slate-950 pr-1"
+                          style={{ width: `${Math.max(10, (valediction || "").length + 2)}ch` }}
+                          placeholder="Yours faithfully,"
+                        />
+                        <button
+                          onClick={() => setValediction(null)}
+                          className="opacity-0 group-hover:opacity-100 text-[9px] text-rose-400 hover:text-rose-600 font-bold transition-opacity print:hidden"
+                          title="Remove valediction"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+                    {valediction === null && (
+                      <button
+                        onClick={() => setValediction("Yours faithfully,")}
+                        className="text-[10px] text-indigo-400 hover:text-indigo-600 font-bold transition-colors print:hidden"
+                      >
+                        + Add valediction
+                      </button>
+                    )}
                     <textarea
                       value={signatureBlock}
                       onChange={(e) => setSignatureBlock(e.target.value)}

@@ -121,6 +121,7 @@ export default function App() {
   const [signatureBlock, setSignatureBlock] = useState(
     "Assistant Returning Officer\n&\nBlock Development Officer\nKaliachak-I Dev. Block, Malda."
   );
+  const [valediction, setValediction] = useState("Yours faithfully,");
   const [enclosures, setEnclosures] = useState("1. Staff list report (2 pages)\n2. Duty assignment sheet");
   const [copyTo, setCopyTo] = useState(
     "1. The Sub-Divisional Officer (Chanchal) for kind information.\n2. The Officer-in-Charge, Election Section, Malda for information.\n3. The BMOH, Kaliachak-I Block for implementation."
@@ -751,6 +752,8 @@ export default function App() {
               setLetterBody={setLetterBody}
               signatureBlock={signatureBlock}
               setSignatureBlock={setSignatureBlock}
+              valediction={valediction}
+              setValediction={setValediction}
               enclosures={enclosures}
               setEnclosures={setEnclosures}
               copyTo={copyTo}
