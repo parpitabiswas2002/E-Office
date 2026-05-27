@@ -126,6 +126,9 @@ export default function App() {
   const [replyNotes, setReplyNotes] = useState("");
   const [uploadedFile, setUploadedFile] = useState(null);
 
+  // One-click AI topic field
+  const [topic, setTopic] = useState("");
+
   // Diagnostics States
   const [diagnosticsStatus, setDiagnosticsStatus] = useState("idle");
   const [diagnosticsInfo, setDiagnosticsInfo] = useState(null);
@@ -329,8 +332,8 @@ export default function App() {
 
   // C. API Handlers
   const handleGenerate = async () => {
-    if (mode === "draft" && !subject.trim()) {
-      alert("Please enter the Subject / Context to draft a letter.");
+    if (mode === "draft" && !topic.trim()) {
+      alert("Please describe the Topic / Context so AI can draft the letter.");
       return;
     }
     if (mode === "reply" && !replyNotes.trim()) {
@@ -347,7 +350,7 @@ export default function App() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            context: subject,
+            context: topic,
             tone,
             letterType,
           }),
@@ -585,6 +588,10 @@ export default function App() {
               setReplyNotes={setReplyNotes}
               uploadedFile={uploadedFile}
               setUploadedFile={setUploadedFile}
+
+              // One-click AI topic
+              topic={topic}
+              setTopic={setTopic}
               
               // Custom logo
               headerLogo={headerLogo}

@@ -18,7 +18,8 @@ import {
   Share2,
   ChevronDown,
   ChevronUp,
-  Sparkles
+  Sparkles,
+  Wand2
 } from "lucide-react";
 
 export default function LeftInputPane({
@@ -40,6 +41,10 @@ export default function LeftInputPane({
   setReplyNotes,
   uploadedFile,
   setUploadedFile,
+
+  // One-click AI topic
+  topic,
+  setTopic,
   
   // Custom logo
   headerLogo,
@@ -208,6 +213,47 @@ export default function LeftInputPane({
 
       {/* Main Form Fields */}
       <div className="flex-1 overflow-y-auto p-5 space-y-4">
+
+        {/* ── ONE-CLICK AI TOPIC FIELD (Draft mode only) ── */}
+        {mode === "draft" && (
+          <div className="space-y-2 p-3.5 rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/60 to-violet-50/40 shadow-sm">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="p-1.5 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-lg shadow">
+                <Wand2 className="h-3.5 w-3.5 text-white" />
+              </div>
+              <div>
+                <label className="text-xs font-black text-indigo-900 uppercase tracking-wider block">Topic / Context</label>
+                <p className="text-[9px] text-indigo-500 font-medium">Describe the letter topic — AI fills all fields automatically</p>
+              </div>
+            </div>
+            <textarea
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              rows="3"
+              className="w-full px-3 py-2.5 border-2 border-indigo-200 focus:border-indigo-500 rounded-xl bg-white text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-300/50 placeholder-slate-400 transition-all resize-none"
+              placeholder="e.g. Request to submit staff list for election duty at Movement Ground from 21-04-2026 to 23-04-2026, addressed to the District Magistrate, Malda..."
+            />
+            <button
+              onClick={onGenerate}
+              disabled={isGenerating || !topic.trim()}
+              className={`w-full h-10 bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 hover:from-indigo-700 hover:via-violet-700 hover:to-fuchsia-700 text-white rounded-xl shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all font-black text-xs tracking-wider uppercase flex items-center justify-center gap-2 ${
+                isGenerating || !topic.trim() ? "opacity-60 cursor-not-allowed pointer-events-none" : ""
+              }`}
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  AI is Drafting...
+                </>
+              ) : (
+                <>
+                  <Wand2 className="h-4 w-4" />
+                  Draft Letter
+                </>
+              )}
+            </button>
+          </div>
+        )}
         
         {/* Recipient "To" Preset Selector Dropdown */}
         <div className="space-y-1.5 p-3.5 bg-indigo-50/15 rounded-2xl border border-indigo-50/40">
@@ -693,24 +739,26 @@ export default function LeftInputPane({
 
         </div>
 
-        {/* GENERATE BUTTON */}
-        <button
-          onClick={onGenerate}
-          disabled={isGenerating}
-          className="w-full h-11 bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 hover:from-indigo-700 hover:via-violet-700 hover:to-fuchsia-700 text-white rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all font-black text-xs tracking-wider uppercase flex items-center justify-center gap-2 disabled:opacity-85 disabled:pointer-events-none"
-        >
-          {isGenerating ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Generating Draft Letters...
-            </>
-          ) : (
-            <>
-              <Send className="h-4 w-4" />
-              Compose Letter via Gemini AI
-            </>
-          )}
-        </button>
+        {/* GENERATE BUTTON (Reply mode only – in draft mode the button is inside the Topic card) */}
+        {mode === "reply" && (
+          <button
+            onClick={onGenerate}
+            disabled={isGenerating}
+            className="w-full h-11 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-600 hover:from-violet-700 hover:via-fuchsia-700 hover:to-pink-700 text-white rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all font-black text-xs tracking-wider uppercase flex items-center justify-center gap-2 disabled:opacity-85 disabled:pointer-events-none"
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Generating Reply...
+              </>
+            ) : (
+              <>
+                <Send className="h-4 w-4" />
+                Draft Reply via Gemini AI
+              </>
+            )}
+          </button>
+        )}
 
       </div>
     </div>
