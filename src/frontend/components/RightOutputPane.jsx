@@ -1,5 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useLayoutEffect, useRef } from "react";
 import { Copy, Printer, Save, History, CheckCircle, Eye, Edit3, FileText, Download, Sliders } from "lucide-react";
+
+// A custom textarea component that automatically adjusts its height to fit its content.
+// This prevents truncation in the letter preview and ensures all content is visible in the exported PDF.
+const AutoResizeTextarea = React.forwardRef(({ value, onChange, className, style, rows = 1, ...props }, ref) => {
+  const localRef = useRef(null);
+  const combinedRef = ref || localRef;
+
+  useLayoutEffect(() => {
+    const textarea = combinedRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  }, [value]);
+
+  return (
+    <textarea
+      ref={combinedRef}
+      value={value}
+      onChange={onChange}
+      className={className}
+      rows={rows}
+      style={{
+        ...style,
+        resize: "none",
+        overflow: "hidden",
+      }}
+      {...props}
+    />
+  );
+});
+
+AutoResizeTextarea.displayName = "AutoResizeTextarea";
 
 export default function RightOutputPane({
   // Margins setup
@@ -607,10 +640,10 @@ export default function RightOutputPane({
                   />
                   
                   {/* Centered editable header lines */}
-                  <textarea
+                  <AutoResizeTextarea
                     value={letterhead}
                     onChange={(e) => setLetterhead(e.target.value)}
-                    rows="3"
+                    rows={3}
                     className="w-full text-center border-0 font-bold focus:ring-0 focus:outline-none bg-transparent resize-none text-[13.5pt] leading-tight select-text"
                     placeholder="[CENTRAL OFFICE HEADER]"
                   />
@@ -647,10 +680,10 @@ export default function RightOutputPane({
                 {fromBlock && (
                   <div className="space-y-1">
                     <span className="font-bold text-slate-950 block">From :</span>
-                    <textarea
+                    <AutoResizeTextarea
                       value={fromBlock}
                       onChange={(e) => setFromBlock(e.target.value)}
-                      rows="2"
+                      rows={2}
                       className="w-full p-0 border-0 focus:ring-0 focus:outline-none bg-transparent resize-none font-medium ml-4 pl-1"
                       placeholder="Issuing officer details..."
                     />
@@ -660,10 +693,10 @@ export default function RightOutputPane({
                 {/* 5. To Block */}
                 <div className="space-y-1">
                   <span className="font-bold text-slate-950 block">To :</span>
-                  <textarea
+                  <AutoResizeTextarea
                     value={toBlock}
                     onChange={(e) => setToBlock(e.target.value)}
-                    rows="2"
+                    rows={2}
                     className="w-full p-0 border-0 focus:ring-0 focus:outline-none bg-transparent resize-none font-medium ml-4 pl-1"
                     placeholder="Recipient address block..."
                   />
@@ -675,20 +708,20 @@ export default function RightOutputPane({
                 }`}>
                   <div className="flex items-start gap-1.5">
                     <span className="font-bold shrink-0 text-slate-950">Sub:</span>
-                    <textarea
+                    <AutoResizeTextarea
                       value={subject}
                       onChange={(e) => setSubject(e.target.value)}
-                      rows="2"
+                      rows={2}
                       className="w-full p-0 border-0 focus:ring-0 focus:outline-none bg-transparent resize-none font-bold text-slate-950 leading-snug"
                       placeholder="Subject summary..."
                     />
                   </div>
                   <div className={`flex items-start gap-1.5 border-t border-slate-100/50 pt-1.5 print:border-none ${!reference ? "print:hidden" : ""}`}>
                     <span className="font-bold italic text-[11pt] text-slate-800 shrink-0">Ref:</span>
-                    <textarea
+                    <AutoResizeTextarea
                       value={reference}
                       onChange={(e) => setReference(e.target.value)}
-                      rows="1"
+                      rows={1}
                       className="w-full p-0 border-0 focus:ring-0 focus:outline-none bg-transparent resize-none font-medium italic text-slate-700 leading-snug"
                       style={{ fontSize: compactPrint ? "10pt" : "11pt" }}
                       placeholder="Reference memo citations..."
@@ -716,10 +749,10 @@ export default function RightOutputPane({
                       </span>
                     </div>
                   )}
-                  <textarea
+                  <AutoResizeTextarea
                     value={letterBody}
                     onChange={(e) => setLetterBody(e.target.value)}
-                    rows={letterBody ? Math.max(3, letterBody.split("\n").length) : 4}
+                    rows={4}
                     className="w-full p-0 border-0 focus:ring-0 focus:outline-none bg-transparent resize-none text-slate-855 overflow-hidden relative z-10"
                     style={{
                       fontSize: compactPrint ? "11pt" : "12pt",
@@ -760,10 +793,10 @@ export default function RightOutputPane({
                       </button>
                     )}
                     <div className="h-14 print:h-14 w-full"></div>
-                    <textarea
+                    <AutoResizeTextarea
                       value={signatureBlock}
                       onChange={(e) => setSignatureBlock(e.target.value)}
-                      rows={signatureBlock ? Math.max(2, signatureBlock.split("\n").length) : 3}
+                      rows={3}
                       className="w-full border-0 p-0 focus:ring-0 focus:outline-none text-center bg-transparent resize-none font-bold text-slate-900 leading-normal overflow-hidden"
                       placeholder="Officer Designation Block"
                     />
@@ -773,10 +806,10 @@ export default function RightOutputPane({
                 {/* 11. Enclosures (Encl:) */}
                 <div className={`border-t border-slate-150 pt-1.5 print:pt-1 ${compactPrint ? "mt-1.5 print:mt-1" : "mt-2.5 print:mt-1.5"} ${!enclosures ? "print:hidden" : ""}`}>
                   <span className="font-bold text-slate-950 block mb-1">Enclosures (Encl:):</span>
-                  <textarea
+                  <AutoResizeTextarea
                     value={enclosures}
                     onChange={(e) => setEnclosures(e.target.value)}
-                    rows={enclosures ? Math.max(1, enclosures.split("\n").length) : 2}
+                    rows={2}
                     className="w-full p-0 border-0 focus:ring-0 focus:outline-none bg-transparent resize-none font-medium ml-4 pl-1 overflow-hidden"
                     placeholder="Attachments list..."
                   />
@@ -813,10 +846,10 @@ export default function RightOutputPane({
 
                   <div className="space-y-3">
                     <span className="font-bold text-slate-950 block">Copy forwarded for information and necessary action to:</span>
-                    <textarea
+                    <AutoResizeTextarea
                       value={copyTo}
                       onChange={(e) => setCopyTo(e.target.value)}
-                      rows={copyTo ? Math.max(2, copyTo.split("\n").length) : 4}
+                      rows={4}
                       className="w-full p-0 border-0 focus:ring-0 focus:outline-none bg-transparent resize-none font-medium ml-4 pl-1 leading-relaxed overflow-hidden"
                       placeholder="1. Office Copy\n2. Supervisor for audits..."
                     />
@@ -826,10 +859,10 @@ export default function RightOutputPane({
                   <div className="flex flex-col items-end pt-2 print:pt-1">
                     <div className="text-center w-80 flex flex-col items-center space-y-1">
                       <div className="h-12 print:h-12 w-full"></div>
-                      <textarea
+                      <AutoResizeTextarea
                         value={signatureBlock}
                         onChange={(e) => setSignatureBlock(e.target.value)}
-                        rows={signatureBlock ? Math.max(2, signatureBlock.split("\n").length) : 3}
+                        rows={3}
                         className="w-full border-0 p-0 focus:ring-0 focus:outline-none text-center bg-transparent resize-none font-bold text-slate-900 leading-normal overflow-hidden"
                       />
                     </div>
@@ -839,7 +872,7 @@ export default function RightOutputPane({
             ) : (
               /* B. RAW PLAINTEXT CANVAS EDITOR VIEW (FALLBACK) */
               <div className="bg-white rounded-xl">
-                <textarea
+                <AutoResizeTextarea
                   value={letterContent}
                   onChange={(e) => setLetterContent(e.target.value)}
                   className="w-full min-h-[960px] border-0 focus:outline-none focus:ring-0 rounded-xl resize-none print:h-auto"
