@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Copy, Printer, Save, History, CheckCircle, Eye, Edit3, FileText, Download } from "lucide-react";
+import { Copy, Printer, Save, History, CheckCircle, Eye, Edit3, FileText, Download, Sliders } from "lucide-react";
 
 export default function RightOutputPane({
   // Margins setup
   margins,
+  handleMarginChange,
+  handleMarginPreset,
 
   // Logo
   headerLogo,
@@ -198,11 +200,9 @@ export default function RightOutputPane({
           <div style="font-family: 'Times New Roman', Times, serif;">
             
             <!-- 1. Letterhead Emblem + Title (Centered) -->
-            ${headerLogo ? `
             <p align="center" style="text-align: center; margin-bottom: 4pt;">
-              <img src="${headerLogo}" alt="Emblem" style="height: 60px; width: auto;" />
+              <img src="${headerLogo || (window.location.origin + '/emblem.png')}" alt="Emblem" style="height: 60px; width: auto;" />
             </p>
-            ` : ""}
             ${cleanLetterhead ? `
             <p align="center" style="text-align: center; font-size: ${compactPrint ? "13pt" : "14pt"}; font-weight: bold; margin-bottom: 15pt;">
               <b>${formatHtmlText(cleanLetterhead)}</b>
@@ -216,7 +216,7 @@ export default function RightOutputPane({
                   <b>${cleanMemoNo}</b>
                 </td>
                 <td align="right" valign="bottom" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; font-weight: bold; text-align: right;">
-                  <b>Dated, ${cleanPlaceAndDate}</b>
+                  <b>Date: ${cleanPlaceAndDate}</b>
                 </td>
               </tr>
             </table>
@@ -269,7 +269,7 @@ export default function RightOutputPane({
             <table border="0" width="100%" cellspacing="0" cellpadding="0" style="margin-top: 15pt; margin-bottom: 15pt; width: 100%;">
               <tr>
                 <td width="55%"></td>
-                <td width="45%" align="right" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; text-align: right;">
+                <td width="45%" align="center" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; text-align: center;">
                   ${cleanValediction ? `<b>${formatHtmlText(cleanValediction)}</b><br/><br/><br/><br/>` : `<br/><br/><br/><br/>`}
                   <b>${formatHtmlText(cleanSignature)}</b>
                 </td>
@@ -298,7 +298,7 @@ export default function RightOutputPane({
                     <b>${cleanMemoNo}</b>
                   </td>
                   <td align="right" valign="bottom" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; font-weight: bold; text-align: right;">
-                    <b>Dated, ${cleanPlaceAndDate}</b>
+                    <b>Date: ${cleanPlaceAndDate}</b>
                   </td>
                 </tr>
               </table>
@@ -314,7 +314,7 @@ export default function RightOutputPane({
               <table border="0" width="100%" cellspacing="0" cellpadding="0" style="margin-top: 15pt; width: 100%;">
                 <tr>
                   <td width="55%"></td>
-                  <td width="45%" align="right" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; text-align: right;">
+                  <td width="45%" align="center" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; text-align: center;">
                     <br/><br/><br/>
                     <b>${formatHtmlText(cleanSignature)}</b>
                   </td>
@@ -464,6 +464,118 @@ export default function RightOutputPane({
         </div>
       </div>
 
+      {/* Margin Adjuster Bar */}
+      <div className="bg-slate-50 border-b border-slate-200/85 px-5 py-2.5 flex flex-wrap items-center justify-between gap-4 text-xs font-bold text-slate-700 print:hidden shadow-xs shrink-0 select-none">
+        <div className="flex items-center gap-1.5">
+          <Sliders className="h-4 w-4 text-indigo-600" />
+          <span className="text-[10px] font-black uppercase tracking-wider text-slate-800">Margins:</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[9px] text-slate-500 uppercase tracking-wider">Top</span>
+            <input
+              type="number"
+              step="0.05"
+              min="0.2"
+              max="2.5"
+              value={margins?.top ?? 0.8}
+              onChange={(e) => handleMarginChange("top", parseFloat(e.target.value) || 0.8)}
+              className="w-14 px-1.5 py-0.5 border border-slate-200 rounded font-bold bg-white text-indigo-650 focus:outline-none focus:ring-1 focus:ring-indigo-400 text-center"
+            />
+            <span className="text-[10px] text-slate-400">in</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[9px] text-slate-500 uppercase tracking-wider">Bottom</span>
+            <input
+              type="number"
+              step="0.05"
+              min="0.2"
+              max="2.5"
+              value={margins?.bottom ?? 0.8}
+              onChange={(e) => handleMarginChange("bottom", parseFloat(e.target.value) || 0.8)}
+              className="w-14 px-1.5 py-0.5 border border-slate-200 rounded font-bold bg-white text-indigo-650 focus:outline-none focus:ring-1 focus:ring-indigo-400 text-center"
+            />
+            <span className="text-[10px] text-slate-400">in</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[9px] text-slate-500 uppercase tracking-wider">Left</span>
+            <input
+              type="number"
+              step="0.05"
+              min="0.2"
+              max="2.5"
+              value={margins?.left ?? 1.0}
+              onChange={(e) => handleMarginChange("left", parseFloat(e.target.value) || 1.0)}
+              className="w-14 px-1.5 py-0.5 border border-slate-200 rounded font-bold bg-white text-indigo-650 focus:outline-none focus:ring-1 focus:ring-indigo-400 text-center"
+            />
+            <span className="text-[10px] text-slate-400">in</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[9px] text-slate-500 uppercase tracking-wider">Right</span>
+            <input
+              type="number"
+              step="0.05"
+              min="0.2"
+              max="2.5"
+              value={margins?.right ?? 1.0}
+              onChange={(e) => handleMarginChange("right", parseFloat(e.target.value) || 1.0)}
+              className="w-14 px-1.5 py-0.5 border border-slate-200 rounded font-bold bg-white text-indigo-650 focus:outline-none focus:ring-1 focus:ring-indigo-400 text-center"
+            />
+            <span className="text-[10px] text-slate-400">in</span>
+          </div>
+        </div>
+
+        {/* Quick Margin Presets */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-[9px] text-slate-400 uppercase tracking-wider">Presets:</span>
+          <button
+            type="button"
+            onClick={() => handleMarginPreset(0.8, 0.8, 1.0, 1.0)}
+            className="px-2 py-0.5 bg-white hover:bg-slate-50 border border-slate-200 rounded text-[9px] font-bold text-slate-700 transition-colors shadow-xs cursor-pointer"
+          >
+            Standard
+          </button>
+          <button
+            type="button"
+            onClick={() => handleMarginPreset(0.5, 0.5, 0.5, 0.5)}
+            className="px-2 py-0.5 bg-white hover:bg-slate-50 border border-slate-200 rounded text-[9px] font-bold text-slate-700 transition-colors shadow-xs cursor-pointer"
+          >
+            Narrow
+          </button>
+          <button
+            type="button"
+            onClick={() => handleMarginPreset(1.2, 1.2, 1.2, 1.2)}
+            className="px-2 py-0.5 bg-white hover:bg-slate-50 border border-slate-200 rounded text-[9px] font-bold text-slate-700 transition-colors shadow-xs cursor-pointer"
+          >
+            Wide
+          </button>
+        </div>
+      </div>
+
+      {/* Dynamic print stylesheet to apply the margins set in the preview panel when printing/saving to PDF */}
+      <style>{`
+        @media print {
+          @page {
+            size: A4;
+            margin: ${margins?.top ?? 0.8}in ${margins?.right ?? 1.0}in ${margins?.bottom ?? 0.8}in ${margins?.left ?? 1.0}in !important;
+          }
+          #letter-canvas {
+            padding: 0 !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+          }
+          #letter-canvas > div {
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          #letter-canvas textarea {
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+        }
+      `}</style>
+
       {/* Main Sheet Workspace */}
       <div className="flex-1 overflow-y-auto p-6 lg:p-8 print:p-0 print:overflow-visible">
         <div className="max-w-4xl mx-auto print:max-w-full">
@@ -488,36 +600,11 @@ export default function RightOutputPane({
               >
                 {/* 1. Indian Government Emblem and Letterhead */}
                 <div className="flex flex-col items-center text-center space-y-1.5">
-                  {headerLogo ? (
-                    <img
-                      src={headerLogo}
-                      alt="Letterhead Logo"
-                      className="h-16 w-auto max-w-[120px] object-contain print:h-14 mb-1"
-                    />
-                  ) : (
-                    /* Clean SVG representation of Ashoka Chakra / Indian Emblem */
-                    <svg className="h-14 w-14 text-slate-900/90 print:h-12 print:w-12" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <circle cx="50" cy="50" r="42" strokeDasharray="3 3" />
-                      <circle cx="50" cy="50" r="28" />
-                      <circle cx="50" cy="50" r="4" fill="currentColor" />
-                      {/* Spokes representing the 24 Chakra spokes */}
-                      {[...Array(24)].map((_, i) => {
-                        const angle = (i * 360) / 24;
-                        const rad = (angle * Math.PI) / 180;
-                        return (
-                          <line
-                            key={i}
-                            x1="50"
-                            y1="50"
-                            x2={50 + 28 * Math.cos(rad)}
-                            y2={50 + 28 * Math.sin(rad)}
-                            strokeWidth="1"
-                          />
-                        );
-                      })}
-                      <path d="M 40 85 L 60 85 M 43 89 L 57 89" strokeWidth="3" strokeLinecap="round" />
-                    </svg>
-                  )}
+                  <img
+                    src={headerLogo || "/emblem.png"}
+                    alt="Letterhead Logo"
+                    className="h-16 w-auto max-w-[120px] object-contain print:h-14 mb-1"
+                  />
                   
                   {/* Centered editable header lines */}
                   <textarea
@@ -544,14 +631,14 @@ export default function RightOutputPane({
                     />
                   </div>
                   <div className="flex items-center gap-1 justify-end w-1/2">
-                    <span className="shrink-0 text-slate-950 font-bold">Dated,</span>
+                    <span className="shrink-0 text-slate-950 font-bold">Date:</span>
                     <input
                       type="text"
                       value={placeAndDate}
                       onChange={(e) => setPlaceAndDate(e.target.value)}
                       className="border-0 p-0 focus:ring-0 focus:outline-none bg-transparent font-medium text-slate-800 text-left"
                       style={{ width: `${Math.max(12, (placeAndDate || "").length + 1)}ch` }}
-                      placeholder="e.g. Nadia, the 25th May, 2026"
+                      placeholder="e.g. 25th May, 2026"
                     />
                   </div>
                 </div>
@@ -596,19 +683,17 @@ export default function RightOutputPane({
                       placeholder="Subject summary..."
                     />
                   </div>
-                  {reference && (
-                    <div className="flex items-start gap-1.5 border-t border-slate-100/50 pt-1.5 print:border-none">
-                      <span className="font-bold italic text-[11pt] text-slate-800 shrink-0">Ref:</span>
-                      <textarea
-                        value={reference}
-                        onChange={(e) => setReference(e.target.value)}
-                        rows="1"
-                        className="w-full p-0 border-0 focus:ring-0 focus:outline-none bg-transparent resize-none font-medium italic text-slate-700 leading-snug"
-                        style={{ fontSize: compactPrint ? "10pt" : "11pt" }}
-                        placeholder="Reference memo citations..."
-                      />
-                    </div>
-                  )}
+                  <div className={`flex items-start gap-1.5 border-t border-slate-100/50 pt-1.5 print:border-none ${!reference ? "print:hidden" : ""}`}>
+                    <span className="font-bold italic text-[11pt] text-slate-800 shrink-0">Ref:</span>
+                    <textarea
+                      value={reference}
+                      onChange={(e) => setReference(e.target.value)}
+                      rows="1"
+                      className="w-full p-0 border-0 focus:ring-0 focus:outline-none bg-transparent resize-none font-medium italic text-slate-700 leading-snug"
+                      style={{ fontSize: compactPrint ? "10pt" : "11pt" }}
+                      placeholder="Reference memo citations..."
+                    />
+                  </div>
                 </div>
 
                 {/* 8. Salutation */}
@@ -623,12 +708,19 @@ export default function RightOutputPane({
                 </div>
 
                 {/* 9. Letter Body paragraphs */}
-                <div>
+                <div className="relative w-full">
+                  {!letterBody && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-[0.06] z-0">
+                      <span className="text-5xl lg:text-6xl font-black uppercase tracking-widest text-slate-900 border-4 lg:border-8 border-slate-900 p-4 lg:p-6 rotate-[-12deg] rounded-2xl">
+                        LETTER BODY
+                      </span>
+                    </div>
+                  )}
                   <textarea
                     value={letterBody}
                     onChange={(e) => setLetterBody(e.target.value)}
                     rows={letterBody ? Math.max(3, letterBody.split("\n").length) : 4}
-                    className="w-full p-0 border-0 focus:ring-0 focus:outline-none bg-transparent resize-none text-slate-855 overflow-hidden"
+                    className="w-full p-0 border-0 focus:ring-0 focus:outline-none bg-transparent resize-none text-slate-855 overflow-hidden relative z-10"
                     style={{
                       fontSize: compactPrint ? "11pt" : "12pt",
                       lineHeight: compactPrint ? "1.25" : "1.4"
@@ -639,16 +731,16 @@ export default function RightOutputPane({
 
                 {/* 10. Valediction & Signature Block (Bottom Right) */}
                 <div className="flex flex-col items-end pt-2 print:pt-1">
-                  <div className="text-right w-80 flex flex-col items-end space-y-1 select-text">
+                  <div className="text-center w-80 flex flex-col items-center space-y-1 select-text">
                     {valediction !== null && (
-                      <div className="flex items-center gap-1.5 group">
+                      <div className="flex items-center gap-1.5 group justify-center w-full">
                         <input
                           type="text"
                           value={valediction}
                           onChange={(e) => setValediction(e.target.value)}
-                          className="border-0 p-0 focus:ring-0 focus:outline-none font-bold bg-transparent text-right text-slate-950 pr-1"
+                          className="border-0 p-0 focus:ring-0 focus:outline-none font-bold bg-transparent text-center text-slate-950"
                           style={{ width: `${Math.max(10, (valediction || "").length + 2)}ch` }}
-                          placeholder="Yours faithfully,"
+                          placeholder="Yours sincerely,"
                         />
                         <button
                           onClick={() => setValediction(null)}
@@ -661,90 +753,88 @@ export default function RightOutputPane({
                     )}
                     {valediction === null && (
                       <button
-                        onClick={() => setValediction("Yours faithfully,")}
+                        onClick={() => setValediction("Yours sincerely,")}
                         className="text-[10px] text-indigo-400 hover:text-indigo-600 font-bold transition-colors print:hidden"
                       >
                         + Add valediction
                       </button>
                     )}
+                    <div className="h-14 print:h-14 w-full"></div>
                     <textarea
                       value={signatureBlock}
                       onChange={(e) => setSignatureBlock(e.target.value)}
                       rows={signatureBlock ? Math.max(2, signatureBlock.split("\n").length) : 3}
-                      className="w-full border-0 p-0 focus:ring-0 focus:outline-none text-right bg-transparent resize-none font-bold text-slate-900 leading-normal overflow-hidden"
+                      className="w-full border-0 p-0 focus:ring-0 focus:outline-none text-center bg-transparent resize-none font-bold text-slate-900 leading-normal overflow-hidden"
                       placeholder="Officer Designation Block"
                     />
                   </div>
                 </div>
 
                 {/* 11. Enclosures (Encl:) */}
-                {enclosures && (
-                  <div className={`border-t border-slate-150 pt-1.5 print:pt-1 ${compactPrint ? "mt-1.5 print:mt-1" : "mt-2.5 print:mt-1.5"}`}>
-                    <span className="font-bold text-slate-950 block mb-1">Enclosures (Encl:):</span>
-                    <textarea
-                      value={enclosures}
-                      onChange={(e) => setEnclosures(e.target.value)}
-                      rows={enclosures ? Math.max(1, enclosures.split("\n").length) : 2}
-                      className="w-full p-0 border-0 focus:ring-0 focus:outline-none bg-transparent resize-none font-medium ml-4 pl-1 overflow-hidden"
-                      placeholder="Attachments list..."
-                    />
-                  </div>
-                )}
+                <div className={`border-t border-slate-150 pt-1.5 print:pt-1 ${compactPrint ? "mt-1.5 print:mt-1" : "mt-2.5 print:mt-1.5"} ${!enclosures ? "print:hidden" : ""}`}>
+                  <span className="font-bold text-slate-950 block mb-1">Enclosures (Encl:):</span>
+                  <textarea
+                    value={enclosures}
+                    onChange={(e) => setEnclosures(e.target.value)}
+                    rows={enclosures ? Math.max(1, enclosures.split("\n").length) : 2}
+                    className="w-full p-0 border-0 focus:ring-0 focus:outline-none bg-transparent resize-none font-medium ml-4 pl-1 overflow-hidden"
+                    placeholder="Attachments list..."
+                  />
+                </div>
 
                 {/* 12. Copy Forwarding Distribution (Copy forwarded for information to:) */}
-                {copyTo && (
-                  <div className={`border-t-2 border-dashed border-slate-200 pt-2 space-y-2 print:pt-1 ${
-                    compactPrint ? "mt-2.5 print:mt-1.5" : "mt-4 print:mt-2.5"
-                  }`}>
-                    {/* Aligned Copy Forwarding Header Memo & Date */}
-                    <div className="flex justify-between items-baseline">
-                      <div className="flex items-center gap-1 font-bold w-1/2">
-                        {!memoNumber?.toLowerCase().startsWith("memo no") && (
-                          <span className="shrink-0 text-slate-950 font-bold">Memo No.</span>
-                        )}
-                        <input
-                          type="text"
-                          value={memoNumber}
-                          onChange={(e) => setMemoNumber(e.target.value)}
-                          className="border-0 p-0 focus:ring-0 focus:outline-none w-full bg-transparent font-medium"
-                        />
-                      </div>
-                      <div className="flex items-center gap-1 justify-end w-1/2">
-                        <span className="shrink-0 text-slate-950 font-bold">Dated,</span>
-                        <input
-                          type="text"
-                          value={placeAndDate}
-                          onChange={(e) => setPlaceAndDate(e.target.value)}
-                          className="border-0 p-0 focus:ring-0 focus:outline-none bg-transparent font-medium text-slate-800 text-left"
-                          style={{ width: `${Math.max(12, (placeAndDate || "").length + 1)}ch` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <span className="font-bold text-slate-950 block">Copy forwarded for information and necessary action to:</span>
-                      <textarea
-                        value={copyTo}
-                        onChange={(e) => setCopyTo(e.target.value)}
-                        rows={copyTo ? Math.max(2, copyTo.split("\n").length) : 4}
-                        className="w-full p-0 border-0 focus:ring-0 focus:outline-none bg-transparent resize-none font-medium ml-4 pl-1 leading-relaxed overflow-hidden"
-                        placeholder="1. Office Copy\n2. Supervisor for audits..."
+                <div className={`border-t-2 border-dashed border-slate-200 pt-2 space-y-2 print:pt-1 ${
+                  compactPrint ? "mt-2.5 print:mt-1.5" : "mt-4 print:mt-2.5"
+                } ${!copyTo ? "print:hidden" : ""}`}>
+                  {/* Aligned Copy Forwarding Header Memo & Date */}
+                  <div className="flex justify-between items-baseline">
+                    <div className="flex items-center gap-1 font-bold w-1/2">
+                      {!memoNumber?.toLowerCase().startsWith("memo no") && (
+                        <span className="shrink-0 text-slate-950 font-bold">Memo No.</span>
+                      )}
+                      <input
+                        type="text"
+                        value={memoNumber}
+                        onChange={(e) => setMemoNumber(e.target.value)}
+                        className="border-0 p-0 focus:ring-0 focus:outline-none w-full bg-transparent font-medium"
                       />
                     </div>
-
-                    {/* Aligned Copy Footer Signature (Bottom Right) */}
-                    <div className="flex flex-col items-end pt-2 print:pt-1">
-                      <div className="text-right w-80 flex flex-col items-end space-y-1">
-                        <textarea
-                          value={signatureBlock}
-                          onChange={(e) => setSignatureBlock(e.target.value)}
-                          rows={signatureBlock ? Math.max(2, signatureBlock.split("\n").length) : 3}
-                          className="w-full border-0 p-0 focus:ring-0 focus:outline-none text-right bg-transparent resize-none font-bold text-slate-900 leading-normal overflow-hidden"
-                        />
-                      </div>
+                    <div className="flex items-center gap-1 justify-end w-1/2">
+                      <span className="shrink-0 text-slate-950 font-bold">Date:</span>
+                      <input
+                        type="text"
+                        value={placeAndDate}
+                        onChange={(e) => setPlaceAndDate(e.target.value)}
+                        className="border-0 p-0 focus:ring-0 focus:outline-none bg-transparent font-medium text-slate-800 text-left"
+                        style={{ width: `${Math.max(12, (placeAndDate || "").length + 1)}ch` }}
+                      />
                     </div>
                   </div>
-                )}
+
+                  <div className="space-y-3">
+                    <span className="font-bold text-slate-950 block">Copy forwarded for information and necessary action to:</span>
+                    <textarea
+                      value={copyTo}
+                      onChange={(e) => setCopyTo(e.target.value)}
+                      rows={copyTo ? Math.max(2, copyTo.split("\n").length) : 4}
+                      className="w-full p-0 border-0 focus:ring-0 focus:outline-none bg-transparent resize-none font-medium ml-4 pl-1 leading-relaxed overflow-hidden"
+                      placeholder="1. Office Copy\n2. Supervisor for audits..."
+                    />
+                  </div>
+
+                  {/* Aligned Copy Footer Signature (Bottom Right) */}
+                  <div className="flex flex-col items-end pt-2 print:pt-1">
+                    <div className="text-center w-80 flex flex-col items-center space-y-1">
+                      <div className="h-12 print:h-12 w-full"></div>
+                      <textarea
+                        value={signatureBlock}
+                        onChange={(e) => setSignatureBlock(e.target.value)}
+                        rows={signatureBlock ? Math.max(2, signatureBlock.split("\n").length) : 3}
+                        className="w-full border-0 p-0 focus:ring-0 focus:outline-none text-center bg-transparent resize-none font-bold text-slate-900 leading-normal overflow-hidden"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : (
               /* B. RAW PLAINTEXT CANVAS EDITOR VIEW (FALLBACK) */
@@ -752,11 +842,15 @@ export default function RightOutputPane({
                 <textarea
                   value={letterContent}
                   onChange={(e) => setLetterContent(e.target.value)}
-                  className="w-full min-h-[960px] p-12 lg:p-16 border-0 focus:outline-none focus:ring-0 rounded-xl resize-none print:p-8 print:h-auto"
+                  className="w-full min-h-[960px] border-0 focus:outline-none focus:ring-0 rounded-xl resize-none print:h-auto"
                   style={{
                     fontFamily: "'Times New Roman', Times, serif",
                     fontSize: "12pt",
                     lineHeight: "1.6",
+                    paddingTop: `${margins?.top ?? 0.8}in`,
+                    paddingBottom: `${margins?.bottom ?? 0.8}in`,
+                    paddingLeft: `${margins?.left ?? 1.0}in`,
+                    paddingRight: `${margins?.right ?? 1.0}in`,
                   }}
                   placeholder="Paste or write raw letter content here..."
                 />

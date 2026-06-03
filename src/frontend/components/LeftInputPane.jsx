@@ -169,41 +169,44 @@ export default function LeftInputPane({
 
   return (
     <div
-      style={window.innerWidth >= 1024 && width ? { width: `${width}px` } : undefined}
-      className="w-full bg-white/95 backdrop-blur-md border-r border-indigo-100 flex flex-col shadow-lg shrink-0 h-full"
+      style={{
+        ...(window.innerWidth >= 1024 && width ? { width: `${width}px` } : {}),
+        fontFamily: "'Inter', 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif"
+      }}
+      className="w-full bg-white border-r border-slate-200 flex flex-col shrink-0 h-full shadow-sm"
     >
       {/* Header Info */}
-      <div className="p-5 border-b border-indigo-50/80 bg-gradient-to-r from-indigo-50/20 to-violet-50/20">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="p-2.5 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl shadow-md">
+      <div className="p-5 border-b border-slate-200 bg-slate-50">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2.5 bg-slate-800 border border-slate-700 rounded-md">
             <FileText className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="text-base bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent font-black tracking-tight">
+            <h1 className="text-base text-slate-900 font-bold tracking-tight">
               E-Office Assistant
             </h1>
-            <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-wider">Official Document Composer</p>
+            <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Official Document Composer</p>
           </div>
         </div>
 
         {/* Dynamic Mode Switcher */}
-        <div className="flex p-1 bg-indigo-50/50 rounded-xl border border-indigo-100/50">
+        <div className="flex p-1 bg-slate-100 rounded-md border border-slate-200">
           <button
             onClick={() => setMode("draft")}
-            className={`flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all ${
+            className={`flex-1 text-center py-2 text-xs font-semibold rounded-md transition-all ${
               mode === "draft"
-                ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md"
-                : "text-indigo-600/80 hover:text-indigo-600 hover:bg-white/40"
+                ? "bg-slate-700 text-white shadow-sm"
+                : "text-slate-600 hover:text-slate-850 hover:bg-white/60"
             }`}
           >
             Draft Letter
           </button>
           <button
             onClick={() => setMode("reply")}
-            className={`flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all ${
+            className={`flex-1 text-center py-2 text-xs font-semibold rounded-md transition-all ${
               mode === "reply"
-                ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md"
-                : "text-indigo-600/80 hover:text-indigo-600 hover:bg-white/40"
+                ? "bg-slate-700 text-white shadow-sm"
+                : "text-slate-600 hover:text-slate-855 hover:bg-white/60"
             }`}
           >
             Reply to Letter
@@ -212,38 +215,38 @@ export default function LeftInputPane({
       </div>
 
       {/* Main Form Fields */}
-      <div className="flex-1 overflow-y-auto p-5 space-y-4">
+      <div className="flex-1 overflow-y-auto p-5 space-y-6">
 
         {/* ── ONE-CLICK AI TOPIC FIELD (Draft mode only) ── */}
         {mode === "draft" && (
-          <div className="space-y-2 p-3.5 rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/60 to-violet-50/40 shadow-sm">
+          <div className="space-y-3 p-4 rounded-md border border-slate-200 bg-slate-50 shadow-sm">
             <div className="flex items-center gap-2 mb-1">
-              <div className="p-1.5 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-lg shadow">
+              <div className="p-1.5 bg-slate-700 rounded-md">
                 <Wand2 className="h-3.5 w-3.5 text-white" />
               </div>
               <div>
-                <label className="text-xs font-black text-indigo-900 uppercase tracking-wider block">Topic / Context</label>
-                <p className="text-[9px] text-indigo-500 font-medium">Describe the letter topic — AI fills all fields automatically</p>
+                <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">Topic / Context</label>
+                <p className="text-[9px] text-slate-500 font-medium">Describe the letter topic — AI fills all fields automatically</p>
               </div>
             </div>
             <textarea
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               rows="3"
-              className="w-full px-3 py-2.5 border-2 border-indigo-200 focus:border-indigo-500 rounded-xl bg-white text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-300/50 placeholder-slate-400 transition-all resize-none"
+              className="w-full px-3 py-2.5 border border-slate-300 focus:border-slate-500 rounded-md bg-white text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-400 placeholder-slate-400 transition-all resize-none"
               placeholder="e.g. Request to submit staff list for election duty at Movement Ground from 21-04-2026 to 23-04-2026, addressed to the District Magistrate, Malda..."
             />
             <button
               onClick={onGenerate}
               disabled={isGenerating || !topic.trim()}
-              className={`w-full h-10 bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 hover:from-indigo-700 hover:via-violet-700 hover:to-fuchsia-700 text-white rounded-xl shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all font-black text-xs tracking-wider uppercase flex items-center justify-center gap-2 ${
+              className={`w-full h-10 bg-[#1e3a8a] hover:bg-[#172554] text-white rounded-md transition-all font-semibold text-xs tracking-wider uppercase flex items-center justify-center gap-2 shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 ${
                 isGenerating || !topic.trim() ? "opacity-60 cursor-not-allowed pointer-events-none" : ""
               }`}
             >
               {isGenerating ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  AI is Drafting...
+                  Drafting...
                 </>
               ) : (
                 <>
@@ -256,8 +259,8 @@ export default function LeftInputPane({
         )}
         
         {/* Recipient "To" Preset Selector Dropdown */}
-        <div className="space-y-1.5 p-3.5 bg-indigo-50/15 rounded-2xl border border-indigo-50/40">
-          <label className="text-[10px] font-bold text-indigo-950 uppercase tracking-wider block">Select Recipient (To)</label>
+        <div className="space-y-2 p-4 bg-slate-50 rounded-md border border-slate-200">
+          <label className="text-[10px] font-semibold text-slate-700 uppercase tracking-wider block">Select Recipient (To)</label>
           <select
             value=""
             onChange={(e) => {
@@ -265,7 +268,7 @@ export default function LeftInputPane({
                 setToBlock(e.target.value);
               }
             }}
-            className="w-full px-3 py-2 border border-indigo-100 rounded-xl bg-white text-xs font-bold text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-slate-300 rounded-md bg-white text-xs font-semibold text-slate-750 focus:outline-none focus:ring-1 focus:ring-slate-400"
           >
             <option value="">-- Choose Preset Recipient Address --</option>
             {(toAddresses || []).map((addr, idx) => (
@@ -277,13 +280,13 @@ export default function LeftInputPane({
         </div>
 
         {/* Dynamic Letter Type & Tone Configurations */}
-        <div className="grid grid-cols-2 gap-3 p-3 bg-indigo-50/20 rounded-2xl border border-indigo-50">
+        <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-md border border-slate-200">
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-indigo-900 uppercase tracking-wider">Letter Type</label>
+            <label className="text-[10px] font-semibold text-slate-700 uppercase tracking-wider">Letter Type</label>
             <select
               value={letterType}
               onChange={(e) => setLetterType(e.target.value)}
-              className="w-full px-2.5 py-1.5 border border-indigo-100 rounded-lg bg-white text-xs font-semibold text-slate-700"
+              className="w-full px-2.5 py-1.5 border border-slate-300 rounded-md bg-white text-xs font-medium text-slate-750 focus:outline-none focus:ring-1 focus:ring-slate-400"
             >
               {letterTypes.map((type) => (
                 <option key={type} value={type}>{type}</option>
@@ -292,11 +295,11 @@ export default function LeftInputPane({
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-indigo-900 uppercase tracking-wider">Tone</label>
+            <label className="text-[10px] font-semibold text-slate-700 uppercase tracking-wider">Tone</label>
             <select
               value={tone}
               onChange={(e) => setTone(e.target.value)}
-              className="w-full px-2.5 py-1.5 border border-indigo-100 rounded-lg bg-white text-xs font-semibold text-slate-700"
+              className="w-full px-2.5 py-1.5 border border-slate-300 rounded-md bg-white text-xs font-medium text-slate-750 focus:outline-none focus:ring-1 focus:ring-slate-400"
             >
               {tones.map((t) => (
                 <option key={t} value={t}>{t}</option>
@@ -307,15 +310,15 @@ export default function LeftInputPane({
 
         {mode === "reply" && (
           /* MULTIMODAL INCOMING LETTER UPLOAD IN REPLY MODE */
-          <div className="space-y-2 p-3.5 bg-violet-50/30 rounded-2xl border border-violet-100/50">
-            <label className="text-[10px] font-bold text-violet-950 uppercase tracking-wider block">
+          <div className="space-y-3 p-4 bg-slate-50 rounded-md border border-slate-200">
+            <label className="text-[10px] font-semibold text-slate-700 uppercase tracking-wider block">
               Upload Scanned Letter (Multimodal OCR)
             </label>
             <div
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => handleFileDrop(e, setUploadedFile)}
               onClick={() => document.getElementById("incoming-file").click()}
-              className="border-2 border-dashed border-violet-200 hover:border-violet-400 rounded-xl p-3.5 text-center cursor-pointer bg-white/40 hover:bg-white/80 transition-all group"
+              className="border border-dashed border-slate-300 hover:border-slate-400 rounded-md p-3.5 text-center cursor-pointer bg-white hover:bg-slate-100/50 transition-all group"
             >
               <input
                 id="incoming-file"
@@ -324,24 +327,24 @@ export default function LeftInputPane({
                 className="hidden"
                 onChange={(e) => e.target.files?.[0] && setUploadedFile(e.target.files[0])}
               />
-              <Upload className="h-4 w-4 text-violet-500 mx-auto mb-1 group-hover:scale-110 transition-transform" />
-              <span className="text-[10px] text-violet-900 font-bold block">Click or Drop Scanned File</span>
-              <span className="text-[9px] text-slate-400">PDF, JPEG, or PNG</span>
+              <Upload className="h-4 w-4 text-slate-500 mx-auto mb-1" />
+              <span className="text-[10px] text-slate-700 font-semibold block">Click or Drop Scanned File</span>
+              <span className="text-[9px] text-slate-500">PDF, JPEG, or PNG</span>
             </div>
             {uploadedFile && (
-              <div className="flex items-center gap-2 p-2 bg-white rounded-xl border border-violet-100">
-                <FileText className="h-3.5 w-3.5 text-violet-600 shrink-0" />
-                <span className="text-xs text-slate-700 font-bold truncate flex-1">{uploadedFile.name}</span>
-                <button onClick={() => setUploadedFile(null)} className="text-xs text-rose-500 font-extrabold px-1">×</button>
+              <div className="flex items-center gap-2 p-2 bg-white rounded-md border border-slate-200">
+                <FileText className="h-3.5 w-3.5 text-slate-600 shrink-0" />
+                <span className="text-xs text-slate-700 font-semibold truncate flex-1">{uploadedFile.name}</span>
+                <button onClick={() => setUploadedFile(null)} className="text-xs text-rose-600 font-bold hover:text-rose-800 px-1.5 py-0.5 rounded hover:bg-rose-50">×</button>
               </div>
             )}
             <div className="space-y-1 pt-1.5">
-              <label className="text-[10px] font-bold text-violet-950 uppercase tracking-wider">Reply Guidelines</label>
+              <label className="text-[10px] font-semibold text-slate-700 uppercase tracking-wider">Reply Guidelines</label>
               <textarea
                 value={replyNotes}
                 onChange={(e) => setReplyNotes(e.target.value)}
                 rows="2"
-                className="w-full px-2.5 py-1.5 border border-violet-100 rounded-xl bg-white text-xs text-slate-700 focus:outline-none"
+                className="w-full px-2.5 py-1.5 border border-slate-300 rounded-md bg-white text-xs text-slate-750 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 placeholder="Mention specific directives or decision parameters for AI to incorporate..."
               />
             </div>
@@ -349,16 +352,16 @@ export default function LeftInputPane({
         )}
 
         {/* 12 CORE COMPONENTS EDITING CONSOLE (COLLAPSIBLE SECTIONS) */}
-        <div className="space-y-2.5">
+        <div className="space-y-5">
           
           {/* SECTION 1: HEADER & ROUTING METADATA */}
-          <div className="border border-indigo-50 rounded-xl overflow-hidden shadow-sm">
+          <div className="border border-slate-200 rounded-md overflow-hidden bg-white shadow-sm border-b-2 border-b-slate-300/80">
             <button
               onClick={() => toggleSection("header")}
-              className="w-full px-4 py-2.5 bg-slate-50 hover:bg-indigo-50/20 text-left flex items-center justify-between border-b border-indigo-50"
+              className="w-full px-4 py-3 bg-slate-50 hover:bg-slate-100/80 text-left flex items-center justify-between border-b border-slate-200"
             >
-              <span className="text-xs font-bold text-slate-800 flex items-center gap-2">
-                <Building className="h-3.5 w-3.5 text-indigo-500" />
+              <span className="text-xs font-semibold text-slate-800 flex items-center gap-2">
+                <Building className="h-3.5 w-3.5 text-slate-600" />
                 1. Header & Metadata
               </span>
               {activeSection === "header" ? <ChevronUp className="h-3.5 w-3.5 text-slate-400" /> : <ChevronDown className="h-3.5 w-3.5 text-slate-400" />}
@@ -367,22 +370,22 @@ export default function LeftInputPane({
             {activeSection === "header" && (
               <div className="p-3 bg-white space-y-3">
                 {/* Logo Uploader */}
-                <div className="space-y-1.5 p-2.5 bg-indigo-50/20 rounded-xl border border-indigo-50/50">
-                  <label className="text-[10px] font-bold text-indigo-950 uppercase tracking-wider block">
+                <div className="space-y-2 p-3 bg-slate-50 rounded-md border border-slate-200">
+                  <label className="text-[10px] font-semibold text-slate-700 uppercase tracking-wider block">
                     Letterhead Emblem / Logo
                   </label>
                   
                   {headerLogo ? (
-                    <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-indigo-100">
-                      <img src={headerLogo} alt="Logo preview" className="h-8 w-8 object-contain rounded bg-slate-50 border border-slate-100" />
+                    <div className="flex items-center gap-3 p-2 bg-white rounded-md border border-slate-200">
+                      <img src={headerLogo} alt="Logo preview" className="h-8 w-8 object-contain rounded bg-slate-50 border border-slate-200" />
                       <div className="flex-1 min-w-0">
-                        <span className="text-[10px] font-bold text-slate-800 block truncate">Custom Logo Active</span>
-                        <span className="text-[9px] text-indigo-500 font-medium">Replaces Ashok Chakra</span>
+                        <span className="text-[10px] font-semibold text-slate-800 block truncate">Custom Logo Active</span>
+                        <span className="text-[9px] text-slate-500 font-medium">Replaces Default Emblem</span>
                       </div>
                       <button
                         type="button"
                         onClick={() => setHeaderLogo(null)}
-                        className="text-xs text-rose-500 font-extrabold hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-2 py-1 rounded transition-colors"
+                        className="text-xs text-rose-600 font-bold hover:text-rose-800 bg-rose-50 border border-rose-200 px-2 py-1 rounded transition-colors"
                       >
                         Remove
                       </button>
@@ -392,9 +395,9 @@ export default function LeftInputPane({
                       <button
                         type="button"
                         onClick={() => document.getElementById("header-logo-picker").click()}
-                        className="flex-1 py-2 px-3 border border-dashed border-indigo-200 hover:border-indigo-400 rounded-lg text-center bg-white cursor-pointer transition-colors text-[10px] font-bold text-indigo-700 flex items-center justify-center gap-1.5"
+                        className="flex-1 py-2 px-3 border border-dashed border-slate-300 hover:border-slate-400 rounded-md text-center bg-white cursor-pointer transition-colors text-[10px] font-semibold text-slate-700 flex items-center justify-center gap-1.5"
                       >
-                        <Upload className="h-3 w-3 text-indigo-600" />
+                        <Upload className="h-3 w-3 text-slate-500" />
                         Upload Custom Logo Image
                       </button>
                       <input
@@ -419,10 +422,10 @@ export default function LeftInputPane({
                 {/* 1. Letterhead */}
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Office Letterhead</label>
+                    <label className="text-[10px] font-semibold text-slate-500 uppercase">Office Letterhead</label>
                     <select
                       onChange={(e) => setLetterhead(e.target.value)}
-                      className="text-[10px] font-bold text-indigo-600 bg-indigo-50/50 border-0 rounded px-1.5 py-0.5"
+                      className="text-[10px] font-semibold text-slate-755 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-slate-400"
                     >
                       <option value="">-- Apply Preset --</option>
                       {letterheadPresets.map((p, idx) => (
@@ -434,7 +437,7 @@ export default function LeftInputPane({
                     value={letterhead}
                     onChange={(e) => setLetterhead(e.target.value)}
                     rows="2"
-                    className="w-full px-2 py-1.5 border border-slate-100 rounded-lg text-xs font-medium text-slate-700"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white"
                     placeholder="Enter official centered header lines..."
                   />
                 </div>
@@ -442,23 +445,23 @@ export default function LeftInputPane({
                 {/* 2. Memo No & 3. Date */}
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">2. Memo Number</label>
+                    <label className="text-[10px] font-semibold text-slate-500 uppercase">2. Memo Number</label>
                     <input
                       type="text"
                       value={memoNumber}
                       onChange={(e) => setMemoNumber(e.target.value)}
-                      className="w-full px-2 py-1 border border-slate-100 rounded-lg text-xs font-medium text-slate-700"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white"
                       placeholder="e.g. Memo No. 452"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">3. Place & Date</label>
+                    <label className="text-[10px] font-semibold text-slate-500 uppercase">3. Date</label>
                     <input
                       type="text"
                       value={placeAndDate}
                       onChange={(e) => setPlaceAndDate(e.target.value)}
-                      className="w-full px-2 py-1 border border-slate-100 rounded-lg text-xs font-medium text-slate-700"
-                      placeholder="Place, the Date"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white"
+                      placeholder="e.g. 25th May, 2026"
                     />
                   </div>
                 </div>
@@ -466,10 +469,10 @@ export default function LeftInputPane({
                 {/* 4. From Block */}
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">4. From Addressee</label>
+                    <label className="text-[10px] font-semibold text-slate-500 uppercase">4. From Addressee</label>
                     <select
                       onChange={(e) => setFromBlock(e.target.value)}
-                      className="text-[10px] font-bold text-indigo-600 bg-indigo-50/50 border-0 rounded px-1.5 py-0.5"
+                      className="text-[10px] font-semibold text-slate-755 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-slate-400"
                     >
                       <option value="">-- Apply Preset --</option>
                       {fromPresets.map((p, idx) => (
@@ -481,7 +484,7 @@ export default function LeftInputPane({
                     value={fromBlock}
                     onChange={(e) => setFromBlock(e.target.value)}
                     rows="2"
-                    className="w-full px-2 py-1.5 border border-slate-100 rounded-lg text-xs font-medium text-slate-700"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white"
                     placeholder="Enter sending authority details..."
                   />
                 </div>
@@ -490,13 +493,13 @@ export default function LeftInputPane({
           </div>
 
           {/* SECTION 2: RECIPIENT & SUBJECT DETAILS */}
-          <div className="border border-indigo-50 rounded-xl overflow-hidden shadow-sm">
+          <div className="border border-slate-200 rounded-md overflow-hidden bg-white shadow-sm border-b-2 border-b-slate-300/80">
             <button
               onClick={() => toggleSection("recipient")}
-              className="w-full px-4 py-2.5 bg-slate-50 hover:bg-indigo-50/20 text-left flex items-center justify-between border-b border-indigo-50"
+              className="w-full px-4 py-3 bg-slate-50 hover:bg-slate-100/80 text-left flex items-center justify-between border-b border-slate-200"
             >
-              <span className="text-xs font-bold text-slate-800 flex items-center gap-2">
-                <Users className="h-3.5 w-3.5 text-indigo-500" />
+              <span className="text-xs font-semibold text-slate-800 flex items-center gap-2">
+                <Users className="h-3.5 w-3.5 text-slate-600" />
                 2. Recipient & Subject
               </span>
               {activeSection === "recipient" ? <ChevronUp className="h-3.5 w-3.5 text-slate-400" /> : <ChevronDown className="h-3.5 w-3.5 text-slate-400" />}
@@ -507,10 +510,10 @@ export default function LeftInputPane({
                 {/* 5. To Block */}
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">5. To Recipient</label>
+                    <label className="text-[10px] font-semibold text-slate-500 uppercase">5. To Recipient</label>
                     <select
                       onChange={(e) => setToBlock(e.target.value)}
-                      className="text-[10px] font-bold text-indigo-600 bg-indigo-50/50 border-0 rounded px-1.5 py-0.5"
+                      className="text-[10px] font-semibold text-slate-755 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-slate-400"
                     >
                       <option value="">-- Add Addressee --</option>
                       {toPresets.map((p, idx) => (
@@ -522,31 +525,31 @@ export default function LeftInputPane({
                     value={toBlock}
                     onChange={(e) => setToBlock(e.target.value)}
                     rows="2"
-                    className="w-full px-2 py-1.5 border border-slate-100 rounded-lg text-xs font-medium text-slate-700"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white"
                     placeholder="To,\nDesignation and Address..."
                   />
                 </div>
 
                 {/* 6. Subject Line */}
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase block">6. Subject Line (Sub:)</label>
+                  <label className="text-[10px] font-semibold text-slate-500 uppercase block">6. Subject Line (Sub:)</label>
                   <textarea
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
                     rows="2"
-                    className="w-full px-2 py-1.5 border border-slate-100 rounded-lg text-xs font-medium text-slate-700"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white"
                     placeholder="Briefly state the letter subject..."
                   />
                 </div>
 
                 {/* 7. Reference Line */}
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase block">7. Reference Line (Ref:)</label>
+                  <label className="text-[10px] font-semibold text-slate-500 uppercase block">7. Reference Line (Ref:)</label>
                   <input
                     type="text"
                     value={reference}
                     onChange={(e) => setReference(e.target.value)}
-                    className="w-full px-2 py-1 border border-slate-100 rounded-lg text-xs font-medium text-slate-700"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white"
                     placeholder="Citations of previous correspondence..."
                   />
                 </div>
@@ -555,13 +558,13 @@ export default function LeftInputPane({
           </div>
 
           {/* SECTION 3: SALUTATION & LETTER BODY */}
-          <div className="border border-indigo-50 rounded-xl overflow-hidden shadow-sm">
+          <div className="border border-slate-200 rounded-md overflow-hidden bg-white shadow-sm border-b-2 border-b-slate-300/80">
             <button
               onClick={() => toggleSection("content")}
-              className="w-full px-4 py-2.5 bg-slate-50 hover:bg-indigo-50/20 text-left flex items-center justify-between border-b border-indigo-50"
+              className="w-full px-4 py-3 bg-slate-50 hover:bg-slate-100/80 text-left flex items-center justify-between border-b border-slate-200"
             >
-              <span className="text-xs font-bold text-slate-800 flex items-center gap-2">
-                <MessageSquare className="h-3.5 w-3.5 text-indigo-500" />
+              <span className="text-xs font-semibold text-slate-800 flex items-center gap-2">
+                <MessageSquare className="h-3.5 w-3.5 text-slate-600" />
                 3. Letter Content
               </span>
               {activeSection === "content" ? <ChevronUp className="h-3.5 w-3.5 text-slate-400" /> : <ChevronDown className="h-3.5 w-3.5 text-slate-400" />}
@@ -572,14 +575,14 @@ export default function LeftInputPane({
                 {/* 8. Salutation */}
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">8. Salutation</label>
+                    <label className="text-[10px] font-semibold text-slate-500 uppercase">8. Salutation</label>
                     <div className="flex gap-1">
                       {salutationPresets.slice(0, 3).map((preset) => (
                         <button
                           key={preset}
                           onClick={() => setSalutation(preset)}
                           className={`text-[9px] font-bold px-2 py-0.5 rounded border transition-colors ${
-                            salutation === preset ? "bg-indigo-600 text-white border-indigo-600" : "bg-slate-50 border-slate-200 text-slate-600"
+                            salutation === preset ? "bg-slate-700 text-white border-slate-700" : "bg-slate-50 border-slate-200 text-slate-600"
                           }`}
                         >
                           {preset}
@@ -591,20 +594,20 @@ export default function LeftInputPane({
                     type="text"
                     value={salutation}
                     onChange={(e) => setSalutation(e.target.value)}
-                    className="w-full px-2 py-1 border border-slate-100 rounded-lg text-xs font-medium text-slate-700"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white"
                   />
                 </div>
 
                 {/* 9. Letter Body */}
                 <div className="space-y-2">
-                  <div className="flex flex-col gap-1.5 border-b border-indigo-50/50 pb-2">
+                  <div className="flex flex-col gap-1.5 border-b border-slate-200 pb-2.5">
                     <div className="flex justify-between items-center">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase">9. Letter Body paragraphs</label>
+                      <label className="text-[10px] font-semibold text-slate-500 uppercase">9. Letter Body paragraphs</label>
                       <button
                         type="button"
                         onClick={handleGenerateBody}
                         disabled={isGeneratingBody}
-                        className={`px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded font-bold text-[10px] flex items-center gap-1 shadow transition-all ${
+                        className={`px-2.5 py-1 bg-slate-700 hover:bg-slate-800 text-white rounded-md font-semibold text-[10px] flex items-center gap-1 shadow-sm transition-all focus:outline-none focus:ring-1 focus:ring-slate-500 ${
                           isGeneratingBody ? "opacity-50 cursor-not-allowed animate-pulse" : ""
                         }`}
                       >
@@ -614,7 +617,7 @@ export default function LeftInputPane({
                     </div>
                     
                     {/* Paragraph Style Tabs */}
-                    <div className="flex bg-slate-100/80 p-0.5 rounded-lg border border-slate-200/40 w-full mt-1">
+                    <div className="flex bg-slate-100 p-0.5 rounded-md border border-slate-250 w-full mt-1.5">
                       {["concise", "urgent", "professional", "legal"].map((styleOpt) => (
                         <button
                           key={styleOpt}
@@ -622,8 +625,8 @@ export default function LeftInputPane({
                           onClick={() => setBodyStyle(styleOpt)}
                           className={`flex-1 text-center py-1 text-[9px] font-black rounded capitalize transition-all ${
                             bodyStyle === styleOpt
-                              ? "bg-white text-indigo-600 shadow-sm border border-slate-200/50"
-                              : "text-slate-500 hover:text-slate-800"
+                              ? "bg-white text-slate-850 shadow-sm border border-slate-300"
+                              : "text-slate-500 hover:text-slate-900"
                           }`}
                         >
                           {styleOpt}
@@ -636,7 +639,7 @@ export default function LeftInputPane({
                     value={letterBody}
                     onChange={(e) => setLetterBody(e.target.value)}
                     rows="8"
-                    className="w-full px-2.5 py-2 border border-slate-100 rounded-xl text-xs font-medium text-slate-750 leading-relaxed focus:ring-1 focus:ring-indigo-400"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs font-medium text-slate-700 leading-relaxed focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white"
                     placeholder="Compose letter paragraphs here or select style variant above and click 'Generate Body' to compile automatically using Gemini AI."
                   />
                 </div>
@@ -645,13 +648,13 @@ export default function LeftInputPane({
           </div>
 
           {/* SECTION 4: CLOSING & COPY FORWARDING */}
-          <div className="border border-indigo-50 rounded-xl overflow-hidden shadow-sm">
+          <div className="border border-slate-200 rounded-md overflow-hidden bg-white shadow-sm border-b-2 border-b-slate-300/80">
             <button
               onClick={() => toggleSection("closing")}
-              className="w-full px-4 py-2.5 bg-slate-50 hover:bg-indigo-50/20 text-left flex items-center justify-between border-b border-indigo-50"
+              className="w-full px-4 py-3 bg-slate-50 hover:bg-slate-100/80 text-left flex items-center justify-between border-b border-slate-200"
             >
-              <span className="text-xs font-bold text-slate-800 flex items-center gap-2">
-                <PenTool className="h-3.5 w-3.5 text-indigo-500" />
+              <span className="text-xs font-semibold text-slate-800 flex items-center gap-2">
+                <PenTool className="h-3.5 w-3.5 text-slate-600" />
                 4. Signatures & Copy To
               </span>
               {activeSection === "closing" ? <ChevronUp className="h-3.5 w-3.5 text-slate-400" /> : <ChevronDown className="h-3.5 w-3.5 text-slate-400" />}
@@ -662,10 +665,10 @@ export default function LeftInputPane({
                 {/* 10. Subscription / Signature */}
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">10. Signature Block</label>
+                    <label className="text-[10px] font-semibold text-slate-500 uppercase">10. Signature Block</label>
                     <select
                       onChange={(e) => setSignatureBlock(e.target.value)}
-                      className="text-[10px] font-bold text-indigo-600 bg-indigo-50/50 border-0 rounded px-1.5 py-0.5"
+                      className="text-[10px] font-semibold text-slate-755 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-slate-400"
                     >
                       <option value="">-- Apply Preset --</option>
                       {signaturePresets.map((p, idx) => (
@@ -677,7 +680,7 @@ export default function LeftInputPane({
                     value={signatureBlock}
                     onChange={(e) => setSignatureBlock(e.target.value)}
                     rows="2"
-                    className="w-full px-2 py-1.5 border border-slate-100 rounded-lg text-xs font-medium text-slate-700"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white"
                     placeholder="Officer designation, name..."
                   />
                 </div>
@@ -685,10 +688,10 @@ export default function LeftInputPane({
                 {/* 11. Enclosures */}
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">11. Enclosures (Encl:)</label>
+                    <label className="text-[10px] font-semibold text-slate-500 uppercase">11. Enclosures (Encl:)</label>
                     <select
                       onChange={(e) => setEnclosures(e.target.value)}
-                      className="text-[10px] font-bold text-indigo-600 bg-indigo-50/50 border-0 rounded px-1.5 py-0.5"
+                      className="text-[10px] font-semibold text-slate-755 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-slate-400"
                     >
                       <option value="">-- Apply Preset --</option>
                       {enclosurePresets.map((p, idx) => (
@@ -700,7 +703,7 @@ export default function LeftInputPane({
                     value={enclosures}
                     onChange={(e) => setEnclosures(e.target.value)}
                     rows="2"
-                    className="w-full px-2 py-1.5 border border-slate-100 rounded-lg text-xs font-medium text-slate-700"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white"
                     placeholder="Enter numbered attachments list..."
                   />
                 </div>
@@ -708,10 +711,10 @@ export default function LeftInputPane({
                 {/* 12. Copy To Footers */}
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">12. Copy Forwarded Recipients</label>
+                    <label className="text-[10px] font-semibold text-slate-500 uppercase">12. Copy Forwarded Recipients</label>
                     <select
                       onChange={(e) => setCopyTo(e.target.value)}
-                      className="text-[10px] font-bold text-indigo-600 bg-indigo-50/50 border-0 rounded px-1.5 py-0.5 max-w-[180px]"
+                      className="text-[10px] font-semibold text-slate-755 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-slate-400 max-w-[180px]"
                     >
                       <option value="">-- Apply Distribution --</option>
                       {(copyPresets || []).map((p, idx) => {
@@ -729,7 +732,7 @@ export default function LeftInputPane({
                     value={copyTo}
                     onChange={(e) => setCopyTo(e.target.value)}
                     rows="3"
-                    className="w-full px-2 py-1.5 border border-slate-100 rounded-lg text-xs font-medium text-slate-700"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white"
                     placeholder="1. SDO for information\n2. OC Section..."
                   />
                 </div>
@@ -744,7 +747,7 @@ export default function LeftInputPane({
           <button
             onClick={onGenerate}
             disabled={isGenerating}
-            className="w-full h-11 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-600 hover:from-violet-700 hover:via-fuchsia-700 hover:to-pink-700 text-white rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all font-black text-xs tracking-wider uppercase flex items-center justify-center gap-2 disabled:opacity-85 disabled:pointer-events-none"
+            className="w-full h-11 bg-[#1e3a8a] hover:bg-[#172554] text-white rounded-md transition-all font-semibold text-xs tracking-wider uppercase flex items-center justify-center gap-2 shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-80 disabled:pointer-events-none"
           >
             {isGenerating ? (
               <>

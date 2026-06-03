@@ -8,7 +8,7 @@ Your task is to draft a highly professional, official, and properly structured l
 You MUST return a JSON object with the following keys:
 1. "letterhead": Centered office department header details (e.g. "Government of West Bengal\\nOffice of the Block Development Officer\\nKaliachak-I Dev. Block, Malda.")
 2. "memoNumber": Formal reference number (e.g. "Memo No. [REF]/[YYYY]/[SEQ]")
-3. "placeAndDate": Date aligned with place (e.g. "Kaliachak, Nadia, the 25th May, 2026")
+3. "placeAndDate": Date aligned with place (e.g. "Kaliachak, Nadia, 25th May, 2026")
 4. "fromBlock": Designation and full official address of the issuing officer (e.g. "The Block Development Officer,\\nKaliachak-I Dev. Block, Malda.")
 5. "toBlock": Designation and full official address of the receiving authority (e.g. "The District Magistrate,\\nMalda")
 6. "subject": Single bold summary sentence starting with "Sub: " (e.g. "Sub: Requisition of logs...")
@@ -27,7 +27,7 @@ Your task is to draft a highly professional, officially structured reply letter 
 You MUST return a JSON object with the following keys:
 1. "letterhead": Centered office department header details (e.g. "Government of West Bengal\\nOffice of the Block Development Officer\\nKaliachak-I Dev. Block, Malda.")
 2. "memoNumber": Formal reference number (e.g. "Memo No. REPLY/[YYYY]/[SEQ]")
-3. "placeAndDate": Date aligned with place (e.g. "Kaliachak, Nadia, the 25th May, 2026")
+3. "placeAndDate": Date aligned with place (e.g. "Kaliachak, Nadia, 25th May, 2026")
 4. "fromBlock": Designation of the replying authority (e.g. "The Block Development Officer,\\nKaliachak-I Dev. Block, Malda.")
 5. "toBlock": Designation of the recipient (original sender) (e.g. "The District Magistrate,\\nMalda")
 6. "subject": Reply subject line starting with "Sub: " (e.g. "Sub: Submission of Access Audit Reports")

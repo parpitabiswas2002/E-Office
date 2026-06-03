@@ -108,28 +108,35 @@ export default function App() {
   const [letterhead, setLetterhead] = useState(
     "Government of West Bengal\nOffice of the Block Development Officer\nKaliachak-I Dev. Block, Malda."
   );
-  const [memoNumber, setMemoNumber] = useState("Memo No. 452/P&RD/2026");
-  const [placeAndDate] = useState("Kaliachak, Nadia, the 25th May, 2026");
+  const [memoNumber, setMemoNumber] = useState("");
+  const [placeAndDate] = useState("25th May, 2026");
   const [fromBlock, setFromBlock] = useState(
     "The Block Development Officer,\nKaliachak-I Dev. Block, Malda."
   );
   const [toBlock, setToBlock] = useState("The District Magistrate,\nMalda");
-  const [subject, setSubject] = useState(
-    "Submission of Staff List for engagement at Movement Ground in connection with General Election to the West Bengal Legislative Assembly, 2026"
-  );
-  const [reference, setReference] = useState("Memo No. 55(15)/MV/TR Cell dated 28/03/2026");
+  const [subject, setSubject] = useState("");
+  const [reference, setReference] = useState("");
   const [salutation, setSalutation] = useState("Sir,");
-  const [letterBody, setLetterBody] = useState(
-    "With reference to the above-mentioned memo, I am directed to submit herewith the list of staff to be engaged at the Movement Ground for Transport Management Cell from P-2 day i.e. 21-04-2026 to Poll Day i.e. 23-04-2026.\n\nThe details of the staff are furnished below for your kind perusal and necessary action:"
-  );
+  const [letterBody, setLetterBody] = useState("");
   const [signatureBlock, setSignatureBlock] = useState(
-    "Assistant Returning Officer\n&\nBlock Development Officer\nKaliachak-I Dev. Block, Malda."
+    "The Block Development Officer,\nKaliachak-I Dev. Block, Malda."
   );
-  const [valediction, setValediction] = useState("Yours faithfully,");
-  const [enclosures, setEnclosures] = useState("1. Staff list report (2 pages)\n2. Duty assignment sheet");
-  const [copyTo, setCopyTo] = useState(
-    "1. The Sub-Divisional Officer (Chanchal) for kind information.\n2. The Officer-in-Charge, Election Section, Malda for information.\n3. The BMOH, Kaliachak-I Block for implementation."
-  );
+  const [valediction, setValediction] = useState("Yours sincerely,");
+  const [enclosures, setEnclosures] = useState("1. ");
+  const [copyTo, setCopyTo] = useState("1. ");
+
+  // Sync fromBlock and signatureBlock in both directions
+  useEffect(() => {
+    if (fromBlock !== signatureBlock) {
+      setSignatureBlock(fromBlock);
+    }
+  }, [fromBlock]);
+
+  useEffect(() => {
+    if (signatureBlock !== fromBlock) {
+      setFromBlock(signatureBlock);
+    }
+  }, [signatureBlock]);
 
   // Dynamic Aligned Date States
   const [rawPlace, setRawPlace] = useState("Kaliachak");
@@ -211,7 +218,7 @@ export default function App() {
 
   // Format Dynamic Aligned Place & Date when changed
   const getPlaceAndDateStr = () => {
-    if (!rawDate) return rawPlace || "Kaliachak";
+    if (!rawDate) return "";
     try {
       const dateObj = new Date(rawDate);
       const day = dateObj.getDate();
@@ -224,9 +231,9 @@ export default function App() {
 
       const formattedMonth = dateObj.toLocaleDateString("en-IN", { month: "long" });
       const year = dateObj.getFullYear();
-      return `${rawPlace || "Kaliachak"}, the ${day}${suffix} ${formattedMonth}, ${year}`;
+      return `${day}${suffix} ${formattedMonth}, ${year}`;
     } catch (e) {
-      return `${rawPlace || "Kaliachak"}, ${rawDate}`;
+      return `${rawDate}`;
     }
   };
 
@@ -450,13 +457,16 @@ export default function App() {
             const parts = letter.placeAndDate.split(",");
             if (parts.length > 0) setRawPlace(parts[0].trim());
           }
-          if (letter.fromBlock) setFromBlock(letter.fromBlock);
           if (letter.toBlock) setToBlock(letter.toBlock);
           if (letter.subject) setSubject(letter.subject);
           if (letter.reference) setReference(letter.reference);
           if (letter.salutation) setSalutation(letter.salutation);
           if (letter.body) setLetterBody(letter.body);
-          if (letter.signatureBlock) setSignatureBlock(letter.signatureBlock);
+          if (letter.signatureBlock || letter.fromBlock) {
+            const combined = letter.signatureBlock || letter.fromBlock;
+            setFromBlock(combined);
+            setSignatureBlock(combined);
+          }
           if (letter.enclosures) setEnclosures(letter.enclosures);
           if (letter.copyTo) setCopyTo(letter.copyTo);
         } else {
@@ -487,13 +497,16 @@ export default function App() {
             const parts = letter.placeAndDate.split(",");
             if (parts.length > 0) setRawPlace(parts[0].trim());
           }
-          if (letter.fromBlock) setFromBlock(letter.fromBlock);
           if (letter.toBlock) setToBlock(letter.toBlock);
           if (letter.subject) setSubject(letter.subject);
           if (letter.reference) setReference(letter.reference);
           if (letter.salutation) setSalutation(letter.salutation);
           if (letter.body) setLetterBody(letter.body);
-          if (letter.signatureBlock) setSignatureBlock(letter.signatureBlock);
+          if (letter.signatureBlock || letter.fromBlock) {
+            const combined = letter.signatureBlock || letter.fromBlock;
+            setFromBlock(combined);
+            setSignatureBlock(combined);
+          }
           if (letter.enclosures) setEnclosures(letter.enclosures);
           if (letter.copyTo) setCopyTo(letter.copyTo);
         } else {
@@ -626,45 +639,6 @@ export default function App() {
               <FileText className="h-5 w-5" />
               <span className="text-[8px] font-bold mt-0.5 uppercase">Draft</span>
             </button>
-
-            <button
-              onClick={() => setActiveTab("analytics")}
-              className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center transition-all ${
-                activeTab === "analytics"
-                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 scale-105"
-                  : "hover:bg-slate-900 hover:text-indigo-400"
-              }`}
-            >
-              <BarChart3 className="h-5 w-5" />
-              <span className="text-[8px] font-bold mt-0.5 uppercase">Stats</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("templates")}
-              className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center transition-all ${
-                activeTab === "templates"
-                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 scale-105"
-                  : "hover:bg-slate-900 hover:text-indigo-400"
-              }`}
-            >
-              <Library className="h-5 w-5" />
-              <span className="text-[8px] font-bold mt-0.5 uppercase">Formats</span>
-            </button>
-
-            <button
-              onClick={() => {
-                setActiveTab("diagnostics");
-                runApiDiagnostics();
-              }}
-              className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center transition-all ${
-                activeTab === "diagnostics"
-                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 scale-105"
-                  : "hover:bg-slate-900 hover:text-indigo-400"
-              }`}
-            >
-              <Activity className="h-5 w-5" />
-              <span className="text-[8px] font-bold mt-0.5 uppercase">API</span>
-            </button>
           </nav>
         </div>
 
@@ -755,6 +729,8 @@ export default function App() {
 
             <RightOutputPane
               margins={margins}
+              handleMarginChange={updateMarginField}
+              handleMarginPreset={updateMarginPreset}
               headerLogo={headerLogo}
               letterhead={letterhead}
               setLetterhead={setLetterhead}
@@ -965,19 +941,7 @@ export default function App() {
               >
                 Copy Forward To
               </button>
-              <button
-                onClick={() => {
-                  setEditingIndex(-1);
-                  setActiveSettingsTab("margins");
-                }}
-                className={`flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all ${
-                  activeSettingsTab === "margins"
-                    ? "bg-white text-indigo-600 shadow-sm border border-slate-200/50"
-                    : "text-slate-500 hover:text-slate-800"
-                }`}
-              >
-                Margins
-              </button>
+
               <button
                 onClick={() => {
                   setEditingIndex(-1);
@@ -1214,109 +1178,6 @@ export default function App() {
                         )}
                       </div>
                     ))}
-                  </div>
-                </div>
-              ) : activeSettingsTab === "margins" ? (
-                /* TAB D: PAGE MARGINS MANAGEMENT */
-                <div className="space-y-4">
-                  <div className="bg-indigo-50/15 p-4 rounded-xl border border-indigo-50/60 space-y-4">
-                    <h4 className="text-[11px] font-black text-indigo-650 uppercase tracking-wide">Adjust Letter Page Margins (Inches)</h4>
-                    
-                    {/* Presets Row */}
-                    <div className="grid grid-cols-3 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => updateMarginPreset(0.8, 0.8, 1.0, 1.0)}
-                        className="px-2.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 transition-colors shadow-sm"
-                      >
-                        Standard (0.8" T/B, 1" L/R)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => updateMarginPreset(0.5, 0.5, 0.5, 0.5)}
-                        className="px-2.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 transition-colors shadow-sm"
-                      >
-                        Narrow (0.5" All)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => updateMarginPreset(1.2, 1.2, 1.2, 1.2)}
-                        className="px-2.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 transition-colors shadow-sm"
-                      >
-                        Wide (1.2" All)
-                      </button>
-                    </div>
-
-                    {/* Left/Right and Top/Bottom Adjustment Sliders */}
-                    <div className="space-y-3 pt-2">
-                      {/* Top Margin */}
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-[10px] font-bold text-slate-650">
-                          <span>Top Margin</span>
-                          <span className="text-indigo-650 font-extrabold">{margins.top.toFixed(2)} in</span>
-                        </div>
-                        <input
-                          type="range"
-                          min="0.2"
-                          max="2.0"
-                          step="0.05"
-                          value={margins.top}
-                          onChange={(e) => updateMarginField("top", parseFloat(e.target.value))}
-                          className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-650"
-                        />
-                      </div>
-
-                      {/* Bottom Margin */}
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-[10px] font-bold text-slate-650">
-                          <span>Bottom Margin</span>
-                          <span className="text-indigo-650 font-extrabold">{margins.bottom.toFixed(2)} in</span>
-                        </div>
-                        <input
-                          type="range"
-                          min="0.2"
-                          max="2.0"
-                          step="0.05"
-                          value={margins.bottom}
-                          onChange={(e) => updateMarginField("bottom", parseFloat(e.target.value))}
-                          className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-650"
-                        />
-                      </div>
-
-                      {/* Left Margin */}
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-[10px] font-bold text-slate-650">
-                          <span>Left Margin</span>
-                          <span className="text-indigo-650 font-extrabold">{margins.left.toFixed(2)} in</span>
-                        </div>
-                        <input
-                          type="range"
-                          min="0.2"
-                          max="2.0"
-                          step="0.05"
-                          value={margins.left}
-                          onChange={(e) => updateMarginField("left", parseFloat(e.target.value))}
-                          className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-650"
-                        />
-                      </div>
-
-                      {/* Right Margin */}
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-[10px] font-bold text-slate-650">
-                          <span>Right Margin</span>
-                          <span className="text-indigo-650 font-extrabold">{margins.right.toFixed(2)} in</span>
-                        </div>
-                        <input
-                          type="range"
-                          min="0.2"
-                          max="2.0"
-                          step="0.05"
-                          value={margins.right}
-                          onChange={(e) => updateMarginField("right", parseFloat(e.target.value))}
-                          className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-650"
-                        />
-                      </div>
-                    </div>
                   </div>
                 </div>
               ) : (
