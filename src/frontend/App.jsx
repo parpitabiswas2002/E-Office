@@ -19,12 +19,35 @@ import {
 import LeftInputPane from "./components/LeftInputPane.jsx";
 import RightOutputPane from "./components/RightOutputPane.jsx";
 import HistoryDrawer from "./components/HistoryDrawer.jsx";
+import LoginModal from "./components/LoginModal.jsx";
+import { supabase } from "./supabaseClient.js";
 
 export default function App() {
   // 1. Navigation & Modal Layout States
   const [activeTab, setActiveTab] = useState("drafting"); // "drafting" | "analytics" | "templates" | "diagnostics"
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [activeSettingsTab, setActiveSettingsTab] = useState("types"); // "types" | "tones"
+
+  // User Authentication State (driven by Supabase onAuthStateChange)
+  const [user, setUser] = useState(null);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+
+  // Listen for Supabase auth session changes (sign-in, sign-out, token refresh, OAuth redirect)
+  useEffect(() => {
+    // 1. Check for an existing session on mount
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    // 2. Subscribe to future auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // 2. Letter Types & Tones States (Dynamic from LocalStorage)
   const [letterTypes, setLetterTypes] = useState([
@@ -422,6 +445,11 @@ export default function App() {
 
   // C. API Handlers
   const handleGenerate = async () => {
+    // Require login before drafting
+    if (!user) {
+      setLoginModalOpen(true);
+      return;
+    }
     if (mode === "draft" && !topic.trim()) {
       alert("Please describe the Topic / Context so AI can draft the letter.");
       return;
@@ -644,13 +672,23 @@ export default function App() {
 
         {/* BOTTOM USER PANEL (PDO CIRCLE BUTTON) */}
         <div className="flex flex-col items-center gap-4">
-          <button
-            onClick={() => setProfileModalOpen(true)}
-            className="w-10 h-10 rounded-full bg-gradient-to-tr from-fuchsia-500 via-indigo-500 to-cyan-500 flex items-center justify-center text-white text-xs font-black ring-2 ring-slate-800 tracking-wider shadow-md hover:scale-105 hover:ring-indigo-400 transition-all cursor-pointer"
-            title="User Customization Panel (PDO)"
-          >
-            PDO
-          </button>
+          {user ? (
+            <button
+              onClick={() => setProfileModalOpen(true)}
+              className="w-10 h-10 rounded-full bg-gradient-to-tr from-fuchsia-500 via-indigo-500 to-cyan-500 flex items-center justify-center text-white text-xs font-black ring-2 ring-slate-800 tracking-wider shadow-md hover:scale-105 hover:ring-indigo-400 transition-all cursor-pointer uppercase"
+              title={`Logged in as ${user.email}. Click to configure settings.`}
+            >
+              {user.email.substring(0, 2)}
+            </button>
+          ) : (
+            <button
+              onClick={() => setLoginModalOpen(true)}
+              className="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 text-xs font-black ring-2 ring-slate-800 tracking-wider shadow-md hover:scale-105 hover:ring-indigo-400 transition-all cursor-pointer"
+              title="Sign In to E-Office"
+            >
+              Login
+            </button>
+          )}
         </div>
       </div>
 
@@ -878,6 +916,24 @@ export default function App() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl w-full max-w-xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border border-indigo-50 animate-scale">
             
+            {user && (
+              <div className="px-5 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-xs">
+                <span className="text-slate-500 font-medium">
+                  Logged in as <strong className="text-slate-800">{user.email}</strong>
+                </span>
+                <button
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    setUser(null);
+                    setProfileModalOpen(false);
+                  }}
+                  className="px-2.5 py-1 text-rose-600 hover:text-white bg-rose-50 hover:bg-rose-600 border border-rose-200 rounded-lg font-bold transition-all text-[10px]"
+                >
+                  Sign Out
+                </button>
+              </div>
+            )}
+
             {/* Modal Header */}
             <div className="p-5 border-b border-indigo-50 bg-gradient-to-r from-indigo-50/30 to-violet-50/30 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -1292,6 +1348,15 @@ export default function App() {
         drafts={savedDrafts}
         onLoadDraft={handleLoadDraft}
         onDeleteDraft={handleDeleteDraft}
+      />
+
+      <LoginModal
+        isOpen={loginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
+        onAuthSuccess={(userData) => {
+          setUser(userData);
+          setLoginModalOpen(false);
+        }}
       />
     </div>
   );

@@ -130,6 +130,15 @@ export default function RightOutputPane({
       return text.replace(/\n/g, "<br/>");
     };
 
+    // Calculate aspect ratio dynamically for the logo to avoid huge/stretched display in MS Word
+    let logoWidth = 60;
+    let logoHeight = 60;
+    const previewImg = document.querySelector('img[alt="Letterhead Logo"]');
+    if (previewImg && previewImg.naturalHeight) {
+      const ratio = previewImg.naturalWidth / previewImg.naturalHeight;
+      logoWidth = Math.round(60 * ratio);
+    }
+
     let html = "";
 
     if (editorMode === "raw") {
@@ -150,9 +159,14 @@ export default function RightOutputPane({
           </xml>
           <![endif]-->
           <style>
-            @page {
-              size: A4;
+            @page WordSection1 {
+              size: 8.27in 11.69in;
               margin: ${margins?.top ?? 0.8}in ${margins?.right ?? 1.0}in ${margins?.bottom ?? 0.8}in ${margins?.left ?? 1.0}in;
+              mso-header-margin: 0.5in;
+              mso-footer-margin: 0.5in;
+            }
+            div.WordSection1 {
+              page: WordSection1;
             }
             body {
               font-family: 'Times New Roman', Times, serif;
@@ -169,7 +183,7 @@ export default function RightOutputPane({
           </style>
         </head>
         <body>
-          <div style="font-family: 'Times New Roman', Times, serif;">
+          <div class="WordSection1" style="font-family: 'Times New Roman', Times, serif;">
             <p>${formatHtmlText(cleanContent)}</p>
           </div>
         </body>
@@ -211,9 +225,14 @@ export default function RightOutputPane({
           </xml>
           <![endif]-->
           <style>
-            @page {
-              size: A4;
+            @page WordSection1 {
+              size: 8.27in 11.69in;
               margin: ${margins?.top ?? 0.8}in ${margins?.right ?? 1.0}in ${margins?.bottom ?? 0.8}in ${margins?.left ?? 1.0}in;
+              mso-header-margin: 0.5in;
+              mso-footer-margin: 0.5in;
+            }
+            div.WordSection1 {
+              page: WordSection1;
             }
             body {
               font-family: 'Times New Roman', Times, serif;
@@ -230,11 +249,11 @@ export default function RightOutputPane({
           </style>
         </head>
         <body>
-          <div style="font-family: 'Times New Roman', Times, serif;">
+          <div class="WordSection1" style="font-family: 'Times New Roman', Times, serif;">
             
             <!-- 1. Letterhead Emblem + Title (Centered) -->
             <p align="center" style="text-align: center; margin-bottom: 4pt;">
-              <img src="${headerLogo || (window.location.origin + '/emblem.png')}" alt="Emblem" style="height: 60px; width: auto;" />
+              <img src="${headerLogo || (window.location.origin + '/emblem.png')}" alt="Emblem" width="${logoWidth}" height="${logoHeight}" style="height: 60px; width: ${logoWidth}px;" />
             </p>
             ${cleanLetterhead ? `
             <p align="center" style="text-align: center; font-size: ${compactPrint ? "13pt" : "14pt"}; font-weight: bold; margin-bottom: 15pt;">
@@ -254,36 +273,32 @@ export default function RightOutputPane({
               </tr>
             </table>
 
-            <!-- 4. From Block (Clean borderless aligned table) -->
+            <!-- 4. From Block -->
             ${cleanFrom ? `
-            <table border="0" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 10pt; width: 100%;">
-              <tr valign="top">
-                <td width="8%" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; font-weight: bold;"><b>From:</b></td>
-                <td width="92%" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize};">
-                  ${formatHtmlText(cleanFrom)}
-                </td>
-              </tr>
-            </table>
+            <p style="margin-top: 10pt; margin-bottom: 2pt; font-weight: bold;">
+              <b>From :</b>
+            </p>
+            <p style="margin-left: 20pt; margin-top: 0; margin-bottom: 10pt;">
+              ${formatHtmlText(cleanFrom)}
+            </p>
             ` : ""}
 
-            <!-- 5. To Block (Clean borderless aligned table) -->
+            <!-- 5. To Block -->
             ${cleanTo ? `
-            <table border="0" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 12pt; width: 100%;">
-              <tr valign="top">
-                <td width="8%" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize}; font-weight: bold;"><b>To:</b></td>
-                <td width="92%" style="font-family: 'Times New Roman', Times, serif; font-size: ${finalFontSize};">
-                  ${formatHtmlText(cleanTo)}
-                </td>
-              </tr>
-            </table>
+            <p style="margin-top: 10pt; margin-bottom: 2pt; font-weight: bold;">
+              <b>To :</b>
+            </p>
+            <p style="margin-left: 20pt; margin-top: 0; margin-bottom: 12pt;">
+              ${formatHtmlText(cleanTo)}
+            </p>
             ` : ""}
 
             <!-- 6 & 7. Subject & Reference Area -->
-            <p style="margin-top: 12pt; margin-bottom: 6pt;">
-              <b>Sub: <u>${cleanSubject}</u></b>
+            <p style="margin-top: 12pt; margin-bottom: 6pt; font-weight: bold;">
+              <b>Sub: ${cleanSubject}</b>
             </p>
             ${cleanReference ? `
-            <p style="margin-top: 6pt; margin-bottom: 12pt;">
+            <p style="margin-top: 6pt; margin-bottom: 12pt; font-style: italic;">
               <i>Ref: ${formatHtmlText(cleanReference)}</i>
             </p>
             ` : ""}

@@ -29,6 +29,16 @@ app.get("/api/status", (c) => {
   });
 });
 
+// Endpoint: Expose public config to frontend
+app.get("/api/config", (c) => {
+  const supabaseUrl = c.env?.SUPABASE_URL || process.env?.SUPABASE_URL;
+  const supabaseAnonKey = c.env?.SUPABASE_ANON_KEY || process.env?.SUPABASE_ANON_KEY;
+  return c.json({
+    supabaseUrl,
+    supabaseAnonKey
+  });
+});
+
 // Endpoint: Generate Letter Draft
 app.post("/api/letters/draft", async (c) => {
   try {
