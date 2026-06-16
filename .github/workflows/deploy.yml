@@ -26,6 +26,9 @@ jobs:
         run: npm ci
 
       - name: Compile Frontend Application
+        env:
+          VITE_SUPABASE_URL: "https://umqfcoudffixajwpxjlr.supabase.co"
+          VITE_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVtcWZjb3VkZmZpeGFqd3B4amxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1OTIyMjYsImV4cCI6MjA5NzE2ODIyNn0.RhmTMDUiGEsgW9_09C4syS5laIoWN7dvIS8TUG9Dve0"
         run: npm run build
 
       - name: Deploy to Cloudflare Workers
