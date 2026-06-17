@@ -144,8 +144,8 @@ app.post("/api/letters/reply", async (c) => {
 // --- Supabase E-Office API Routes ---
 
 function getSupabaseClient(c) {
-  const supabaseUrl = c.env?.SUPABASE_URL || process.env?.SUPABASE_URL;
-  const supabaseKey = c.env?.SUPABASE_ANON_KEY || process.env?.SUPABASE_ANON_KEY;
+  const supabaseUrl = c.env?.SUPABASE_URL || process.env?.SUPABASE_URL || process.env?.VITE_SUPABASE_URL;
+  const supabaseKey = c.env?.SUPABASE_ANON_KEY || process.env?.SUPABASE_ANON_KEY || process.env?.VITE_SUPABASE_ANON_KEY;
   return createClient(supabaseUrl, supabaseKey);
 }
 
