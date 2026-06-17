@@ -8,7 +8,7 @@ export default defineConfig({
     tailwindcss()
   ],
   server: {
-    port: 5173,
+    port: 3000,
     proxy: {
       // Directs API calls to the local Wrangler/Hono Worker during development
       "/api": {
