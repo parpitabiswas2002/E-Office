@@ -146,6 +146,11 @@ app.post("/api/letters/reply", async (c) => {
 function getSupabaseClient(c) {
   const supabaseUrl = c.env?.SUPABASE_URL || process.env?.SUPABASE_URL || process.env?.VITE_SUPABASE_URL;
   const supabaseKey = c.env?.SUPABASE_ANON_KEY || process.env?.SUPABASE_ANON_KEY || process.env?.VITE_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error(
+      "Supabase credentials are not configured. Please set SUPABASE_URL and SUPABASE_ANON_KEY environment variables."
+    );
+  }
   return createClient(supabaseUrl, supabaseKey);
 }
 

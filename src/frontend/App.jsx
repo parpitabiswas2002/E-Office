@@ -292,8 +292,10 @@ export default function App() {
     const loadFromSupabase = async () => {
       try {
         const prefRes = await fetch("/api/e-office/preferences");
-        const prefData = await prefRes.json();
-        if (prefData.success && prefData.preferences) {
+        if (!prefRes.ok) {
+          console.warn(`Preferences API returned ${prefRes.status}: ${prefRes.statusText}`);
+        } else {
+          const prefData = await prefRes.json();
           const prefs = prefData.preferences;
           if (prefs.letter_types) {
             setLetterTypes(prefs.letter_types);
@@ -323,10 +325,14 @@ export default function App() {
         }
 
         const histRes = await fetch("/api/e-office/history");
-        const histData = await histRes.json();
-        if (histData.success && histData.drafts) {
-          setSavedDrafts(histData.drafts);
-          localStorage.setItem("e_office_assistant_drafts", JSON.stringify(histData.drafts));
+        if (!histRes.ok) {
+          console.warn(`History API returned ${histRes.status}: ${histRes.statusText}`);
+        } else {
+          const histData = await histRes.json();
+          if (histData.success && histData.drafts) {
+            setSavedDrafts(histData.drafts);
+            localStorage.setItem("e_office_assistant_drafts", JSON.stringify(histData.drafts));
+          }
         }
       } catch (err) {
         console.error("Failed to sync with Supabase on mount:", err);
@@ -474,6 +480,10 @@ export default function App() {
           }),
         });
 
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || `Server error: ${response.status} ${response.statusText}`);
+        }
         const data = await response.json();
         if (data.success && data.draft) {
           const letter = data.draft;
@@ -516,6 +526,10 @@ export default function App() {
           body: formData,
         });
 
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || `Server error: ${response.status} ${response.statusText}`);
+        }
         const data = await response.json();
         if (data.success && data.reply) {
           const letter = data.reply;
