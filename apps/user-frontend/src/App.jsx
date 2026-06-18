@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   FileText, 
   BarChart3, 
@@ -20,6 +20,7 @@ import LeftInputPane from "./components/LeftInputPane.jsx";
 import RightOutputPane from "./components/RightOutputPane.jsx";
 import HistoryDrawer from "./components/HistoryDrawer.jsx";
 import LoginModal from "./components/LoginModal.jsx";
+import SubscriptionModal from "./components/SubscriptionModal.jsx";
 import { supabase } from "./supabaseClient.js";
 
 export default function App() {
@@ -31,12 +32,19 @@ export default function App() {
   // User Authentication State (driven by Supabase onAuthStateChange)
   const [user, setUser] = useState(null);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [subscriptionModalOpen, setSubscriptionModalOpen] = useState(false);
+
+  // Track previous user to detect sign-in transitions (null → authenticated)
+  const prevUserRef = useRef(null);
 
   // Listen for Supabase auth session changes (sign-in, sign-out, token refresh, OAuth redirect)
   useEffect(() => {
     // 1. Check for an existing session on mount
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      // Initialize prev ref so existing sessions don't trigger the popup
+      prevUserRef.current = currentUser;
     });
 
     // 2. Subscribe to future auth state changes
@@ -48,6 +56,16 @@ export default function App() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Detect sign-in transition: previous user was null, current user is authenticated
+  useEffect(() => {
+    if (prevUserRef.current === null && user !== null) {
+      // User just signed in — show subscription popup
+      setSubscriptionModalOpen(true);
+      setLoginModalOpen(false);
+    }
+    prevUserRef.current = user;
+  }, [user]);
 
   // 2. Letter Types & Tones States (Dynamic from LocalStorage)
   const [letterTypes, setLetterTypes] = useState([
@@ -1372,6 +1390,14 @@ export default function App() {
           setLoginModalOpen(false);
         }}
       />
+
+      {/* 5. Subscription Modal — shown immediately after sign-in */}
+      {subscriptionModalOpen && (
+        <SubscriptionModal
+          user={user}
+          onClose={() => setSubscriptionModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
