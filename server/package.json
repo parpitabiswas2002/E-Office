@@ -1,0 +1,21 @@
+{
+  "name": "e-office-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "local": "node src/local-server.js",
+    "test:cli": "node src/test-cli.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@hono/node-server": "^1.11.1",
+    "@supabase/supabase-js": "^2.106.2",
+    "hono": "^4.3.7"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

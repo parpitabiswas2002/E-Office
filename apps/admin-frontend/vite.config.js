@@ -8,9 +8,8 @@ export default defineConfig({
     tailwindcss()
   ],
   server: {
-    port: 3000,
+    port: 3001,
     proxy: {
-      // Directs API calls to the local Wrangler/Hono Worker during development
       "/api": {
         target: "http://localhost:8787",
         changeOrigin: true,
@@ -19,7 +18,7 @@ export default defineConfig({
     }
   },
   build: {
-    outDir: "dist", // Target folder served by Cloudflare Workers Assets
+    outDir: "dist",
     emptyOutDir: true
   }
 });

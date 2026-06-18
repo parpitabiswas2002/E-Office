@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+/* Official print mode media query to strip UI and isolate the letter sheet */
+@media print {
+  /* Hide all page content by default */
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* Make only the letter canvas and all its children visible */
+  #letter-canvas, 
+  #letter-canvas * {
+    visibility: visible !important;
+  }
+
+  /* Isolate the canvas at the absolute top-left of the page */
+  #letter-canvas {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  /* Prevent page-breaks in intermediate sections to force single A4 page fitting */
+  #letter-canvas > div,
+  #letter-canvas blockquote,
+  #letter-canvas table,
+  #letter-canvas .border-t,
+  #letter-canvas .pt-4 {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Format textarea text inside the printout to be borderless and autosized */
+  #letter-canvas textarea,
+  #letter-canvas input {
+    visibility: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    overflow: visible !important;
+    font-size: inherit !important;
+    font-family: 'Times New Roman', Times, serif !important;
+    line-height: inherit !important;
+    background: transparent !important;
+    resize: none !important;
+  }
+}
+
+/* Micro-animations and custom subtle scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(99, 102, 241, 0.03);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.15);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.3);
+}
+
+/* Login Modal Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out;
+}

@@ -1,14 +1,14 @@
 # Dependencies
-node_modules
-/.pnp
+node_modules/
+.pnp
 .pnp.js
 
 # Production / Build outputs
-/dist
-/build
+dist/
+build/
 
 # Wrangler / Cloudflare Workers local environment
-.wrangler
+.wrangler/
 
 # Local environment variables & secrets
 .env
