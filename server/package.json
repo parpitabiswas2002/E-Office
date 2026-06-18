@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
+    "build": "echo 'No build step required'",
     "deploy": "wrangler deploy",
     "local": "node src/local-server.js",
     "test:cli": "node src/test-cli.js"
